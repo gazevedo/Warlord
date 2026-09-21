@@ -65,10 +65,34 @@
       </div>
       <div class="city-actions">
         <button data-action="Visão da cidade"><span>👁</span>Visitar</button>
-        <button class="primary" data-action="Exército preparado"><span>⚔</span>Atacar</button>
+        <button class="primary" id="attack-action"><span>⚔</span><span id="attack-label">Atacar</span></button>
         <button data-action="Batedor enviado"><span>🔭</span>Espionar</button>
       </div>
     </aside>
+
+    <dialog class="attack-dialog" id="attack-dialog">
+      <form method="dialog" id="attack-form">
+        <button class="close-panel" value="cancel" aria-label="Cancelar ataque">×</button>
+        <span class="dialog-kicker">ORDEM DE MARCHA</span>
+        <h2><span id="attack-origin">Origem</span> → <span id="attack-target">Destino</span></h2>
+        <label for="attack-troops">Tropas enviadas</label>
+        <div class="troop-input"><input id="attack-troops" name="troops" type="number" min="1" step="1" required><button type="button" id="attack-max">MÁX.</button></div>
+        <div class="attack-estimate"><span>Distância <b id="attack-distance">0</b></span><span>Chegada <b id="attack-duration">00:00</b></span></div>
+        <p class="form-error" id="attack-error" role="alert"></p>
+        <button class="confirm-attack" value="confirm">Confirmar ataque</button>
+      </form>
+    </dialog>
+
+    <aside class="attack-alert" id="attack-alert" hidden><button id="focus-attack"><strong>⚠ ATAQUE RECEBIDO</strong><span id="alert-time">00:00</span></button></aside>
+
+    <dialog class="battle-report" id="battle-report">
+      <form method="dialog">
+        <span class="dialog-kicker">RELATÓRIO DE BATALHA</span>
+        <h2 id="report-result">VITÓRIA</h2>
+        <div id="report-content"></div>
+        <button class="confirm-attack">Voltar ao mapa</button>
+      </form>
+    </dialog>
 
     <nav class="bottom-nav" aria-label="Navegação principal">
       <button class="active"><span>🌎</span><b>Mundo</b></button>
@@ -79,6 +103,7 @@
     </nav>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
   </main>
+  <script src="battle-engine.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
