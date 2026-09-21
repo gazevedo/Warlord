@@ -5,3 +5,9 @@
 - [`area-castelos.png`](area-castelos.png): aproximação mobile da área de castelos com a cidade Aurora selecionada.
 
 As imagens foram geradas diretamente da versão do protótipo registrada no repositório usando Chromium e Playwright.
+
+## Baseline para Design Parte 2
+
+- [`design-pt2-mapa-desktop.png`](design-pt2-mapa-desktop.png): estado atual completo em desktop, usado como baseline antes do redesign ilustrado.
+- [`design-pt2-mapa-mobile.png`](design-pt2-mapa-mobile.png): estado atual completo em mobile portrait.
+- [`design-pt2-cidade-selecionada.png`](design-pt2-cidade-selecionada.png): aproximação mobile com Aurora selecionada e o painel contextual aberto.
