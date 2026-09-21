@@ -17,7 +17,8 @@ const hint = document.querySelector('#map-hint');
 const attackDialog = document.querySelector('#attack-dialog');
 const reportDialog = document.querySelector('#battle-report');
 
-let view = { x: 0, y: 20, scale: 0.88 };
+const initialView = () => ({ x: 0, y: 20, scale: window.innerWidth <= 600 ? 0.58 : 0.78 });
+let view = initialView();
 let drag = null;
 let selectedCity = null;
 let originCity = null;
@@ -167,7 +168,7 @@ viewport.addEventListener('wheel', (event) => {
 document.querySelector('#zoom-in').addEventListener('click', () => setZoom(0.12));
 document.querySelector('#zoom-out').addEventListener('click', () => setZoom(-0.12));
 document.querySelector('#recenter').addEventListener('click', () => {
-  view = { x: 0, y: 20, scale: 0.88 };
+  view = initialView();
   applyView();
   showToast('Mapa centralizado');
 });
