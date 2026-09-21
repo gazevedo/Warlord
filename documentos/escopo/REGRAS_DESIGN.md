@@ -1,6 +1,6 @@
-# Regras de design — mapa e gestão de cidades
+# Regras de design — mundo, mapa e cidades
 
-Este documento é a fonte de verdade visual e funcional para o mapa mundial e para a gestão de cidades do **Warlord**.
+Este documento é a fonte de verdade de **design visual e interação** para o mundo, o mapa e a representação das cidades do **Warlord**. As regras sistêmicas de cidade ficam em `REGRAS_CIDADES.md`.
 
 ## 1. Princípio central
 
