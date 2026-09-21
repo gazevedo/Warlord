@@ -1,19 +1,14 @@
-# Capturas da interface
+# Capturas oficiais da interface
 
-- [`mapa-geral-desktop.png`](mapa-geral-desktop.png): visão geral do mundo em viewport desktop de 1280 × 800.
-- [`mapa-geral-mobile.png`](mapa-geral-mobile.png): visão geral do mundo em viewport mobile de 390 × 844.
-- [`area-castelos.png`](area-castelos.png): aproximação mobile da área de castelos com a cidade Aurora selecionada.
+Manter sempre somente estas três capturas. Quando a interface mudar, os arquivos devem ser **substituídos no mesmo caminho**, sem criar nomes versionados ou preservar imagens antigas.
 
-As imagens foram geradas diretamente da versão do protótipo registrada no repositório usando Chromium e Playwright.
+- [`tela-login.png`](tela-login.png): tela de autenticação em viewport mobile.
+- [`mapa-geral.png`](mapa-geral.png): visão geral do mapa em viewport mobile.
+- [`mapa-castelo.png`](mapa-castelo.png): mapa aproximado, com a cidade Aurora selecionada e painel contextual visível.
 
-## Baseline para Design Parte 2
+## Procedimento de atualização
 
-- [`design-pt2-mapa-desktop.png`](design-pt2-mapa-desktop.png): estado atual completo em desktop, usado como baseline antes do redesign ilustrado.
-- [`design-pt2-mapa-mobile.png`](design-pt2-mapa-mobile.png): estado atual completo em mobile portrait.
-- [`design-pt2-cidade-selecionada.png`](design-pt2-cidade-selecionada.png): aproximação mobile com Aurora selecionada e o painel contextual aberto.
-
-## Resultado do mapa ilustrado
-
-- [`design-pt2-resultado-desktop.png`](design-pt2-resultado-desktop.png): captura desktop do mapa ilustrado.
-- [`design-pt2-resultado-mobile.png`](design-pt2-resultado-mobile.png): captura mobile do mapa ilustrado.
-- [`design-pt2-resultado-cidade.png`](design-pt2-resultado-cidade.png): captura mobile com cidade selecionada.
+1. Renderizar a versão atual da aplicação.
+2. Sobrescrever exatamente os três arquivos acima.
+3. Verificar enquadramento, carregamento de assets e legibilidade.
+4. Não adicionar capturas com sufixos como `v2`, `baseline`, `resultado` ou data.
