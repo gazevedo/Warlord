@@ -21,10 +21,11 @@ Estas regras se aplicam a todo o repositório.
 ## Para alterações de design
 
 1. Inicie a aplicação localmente e abra a tela alterada no navegador.
-2. Gere um novo print da interface depois da alteração e antes do commit.
-3. Confira visualmente o print em pelo menos um viewport representativo.
-4. Inclua no commit o código, os assets e o print atualizado.
-5. Faça `git push origin main` logo após o commit.
+2. Antes de gerar o print, remova capturas alternativas ou versionadas da mesma tela (`-v2`, `-v3` e similares).
+3. Gere o novo print depois da alteração, substituindo a captura canônica existente em vez de criar outra versão.
+4. Confira visualmente o print em pelo menos um viewport representativo.
+5. Inclua no commit o código, os assets e somente o print canônico atualizado.
+6. Faça `git push origin main` logo após o commit.
 
 ## Ordem obrigatória
 
