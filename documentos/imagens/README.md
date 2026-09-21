@@ -11,3 +11,9 @@ As imagens foram geradas diretamente da versão do protótipo registrada no repo
 - [`design-pt2-mapa-desktop.png`](design-pt2-mapa-desktop.png): estado atual completo em desktop, usado como baseline antes do redesign ilustrado.
 - [`design-pt2-mapa-mobile.png`](design-pt2-mapa-mobile.png): estado atual completo em mobile portrait.
 - [`design-pt2-cidade-selecionada.png`](design-pt2-cidade-selecionada.png): aproximação mobile com Aurora selecionada e o painel contextual aberto.
+
+## Resultado do mapa ilustrado
+
+- [`design-pt2-resultado-desktop.png`](design-pt2-resultado-desktop.png): captura desktop do mapa ilustrado.
+- [`design-pt2-resultado-mobile.png`](design-pt2-resultado-mobile.png): captura mobile do mapa ilustrado.
+- [`design-pt2-resultado-cidade.png`](design-pt2-resultado-cidade.png): captura mobile com cidade selecionada.
