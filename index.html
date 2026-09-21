@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#79cceb">
+  <title>Warlord — Reino de Valoria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="game" aria-label="Mapa do reino de Valoria">
+    <section class="world-viewport" id="world-viewport" aria-label="Mundo 3D interativo. Arraste para mover e use os controles para ampliar.">
+      <div class="clouds" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="world" id="world">
+        <div class="terrain">
+          <div class="terrain-grid" aria-hidden="true"></div>
+          <div class="river" aria-hidden="true"></div>
+          <div class="lake" aria-hidden="true"></div>
+          <div class="road road-a" aria-hidden="true"></div>
+          <div class="road road-b" aria-hidden="true"></div>
+          <div class="mountains" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div class="forest forest-a" aria-hidden="true"></div>
+          <div class="forest forest-b" aria-hidden="true"></div>
+          <div class="rocks" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div id="cities"></div>
+          <div id="marches"></div>
+        </div>
+      </div>
+      <p class="map-hint" id="map-hint">Arraste para explorar • toque em uma cidade</p>
+    </section>
+
+    <header class="top-hud" aria-label="Status do jogador">
+      <button class="avatar hud-button" aria-label="Abrir perfil">WA<span>27</span></button>
+      <div class="player-summary"><strong>Lord Azevedo</strong><span>⚔ 184.2K poder</span></div>
+      <div class="resources" aria-label="Recursos">
+        <button class="resource" aria-label="Madeira: 82 mil"><span>🪵</span><b>82K</b></button>
+        <button class="resource" aria-label="Pedra: 46 mil"><span>⬡</span><b>46K</b></button>
+        <button class="resource premium" aria-label="Gemas: 680"><span>◆</span><b>680</b></button>
+      </div>
+      <button class="round-button notification" aria-label="Notificações, 3 novas">🔔<i>3</i></button>
+    </header>
+
+    <nav class="side-actions" aria-label="Atalhos">
+      <button class="action-button" data-toast="Eventos do reino"><span>🏆</span><b>Eventos</b><i>2</i></button>
+      <button class="action-button" data-toast="Missões diárias"><span>📜</span><b>Missões</b></button>
+      <button class="action-button" data-toast="Loja do reino"><span>🎪</span><b>Loja</b></button>
+    </nav>
+
+    <div class="zoom-controls" aria-label="Controles do mapa">
+      <button id="zoom-in" aria-label="Aproximar">+</button>
+      <button id="zoom-out" aria-label="Afastar">−</button>
+      <button id="recenter" aria-label="Centralizar mapa">⌖</button>
+    </div>
+
+    <aside class="city-panel" id="city-panel" aria-live="polite" aria-hidden="true">
+      <button class="close-panel" id="close-panel" aria-label="Fechar detalhes">×</button>
+      <div class="city-crest" id="panel-crest">♜</div>
+      <div class="city-copy">
+        <span id="panel-owner">Aliança</span>
+        <h2 id="panel-name">Cidade</h2>
+        <p><b id="panel-level">Nível 1</b> · <span id="panel-troops">0 tropas</span></p>
+      </div>
+      <div class="city-actions">
+        <button data-action="Visão da cidade"><span>👁</span>Visitar</button>
+        <button class="primary" data-action="Exército preparado"><span>⚔</span>Atacar</button>
+        <button data-action="Batedor enviado"><span>🔭</span>Espionar</button>
+      </div>
+    </aside>
+
+    <nav class="bottom-nav" aria-label="Navegação principal">
+      <button class="active"><span>🌎</span><b>Mundo</b></button>
+      <button data-toast="Gestão da sua cidade"><span>🏰</span><b>Cidade</b></button>
+      <button class="army-nav" data-toast="Exércitos em marcha"><span>⚔️</span><b>Exército</b><i>1</i></button>
+      <button data-toast="Aliança Guardiões"><span>🛡️</span><b>Aliança</b></button>
+      <button data-toast="Mais opções"><span>☰</span><b>Mais</b></button>
+    </nav>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
