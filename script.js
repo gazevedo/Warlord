@@ -4,7 +4,9 @@ const cities = [
   { id: 'aurora', name: 'Aurora', level: 83, owner: 'Lord Azevedo', ownerId: PLAYER_ID, troops: 128400, attackBonus: 1.5, defenseBonus: 1, wallPower: 30000, x: 43, y: 44, tone: 'blue' },
   { id: 'pedra-alta', name: 'Pedra Alta', level: 34, owner: 'Clã do Norte', ownerId: 'north', troops: 43700, defenseBonus: 0.45, wallPower: 18000, x: 69, y: 31, tone: 'red' },
   { id: 'vale-verde', name: 'Vale Verde', level: 12, owner: 'Sem aliança', ownerId: 'green', troops: 8900, defenseBonus: 0.1, wallPower: 5000, x: 27, y: 67, tone: 'green' },
-  { id: 'forte-sol', name: 'Forte do Sol', level: 157, owner: 'Império Dourado', ownerId: 'gold', troops: 305200, defenseBonus: 1.2, wallPower: 90000, x: 76, y: 71, tone: 'gold' }
+  { id: 'forte-sol', name: 'Forte do Sol', level: 157, owner: 'Império Dourado', ownerId: 'gold', troops: 305200, defenseBonus: 1.2, wallPower: 90000, x: 76, y: 71, tone: 'gold' },
+  { id: 'ravenna', name: 'Ravenna', level: 31, owner: 'Guardiões', ownerId: 'north', troops: 38900, defenseBonus: 0.35, wallPower: 16000, x: 55, y: 20, tone: 'blue' },
+  { id: 'porto-real', name: 'Porto Real', level: 22, owner: 'Liga Real', ownerId: 'green', troops: 21400, defenseBonus: 0.25, wallPower: 11000, x: 18, y: 84, tone: 'gold' }
 ];
 
 const world = document.querySelector('#world');
@@ -17,7 +19,11 @@ const hint = document.querySelector('#map-hint');
 const attackDialog = document.querySelector('#attack-dialog');
 const reportDialog = document.querySelector('#battle-report');
 
-const initialView = () => ({ x: 0, y: 20, scale: window.innerWidth <= 600 ? 0.58 : 0.78 });
+const initialView = () => ({
+  x: 0,
+  y: 20,
+  scale: Math.min(1.35, Math.max(0.68, window.innerWidth / 1600, window.innerHeight / 1200) + 0.04)
+});
 let view = initialView();
 let drag = null;
 let selectedCity = null;
