@@ -43,18 +43,33 @@ function tierFor(level) {
 
 function castleMarkup(city) {
   const tier = tierFor(city.level);
-  const towers = Array.from({ length: tier.towers }, (_, index) => `<i class="tower tower-${index + 1}"><em></em></i>`).join('');
+  const faction = city.tone === 'red' ? 'red' : city.ownerId === PLAYER_ID || city.tone === 'blue' ? 'blue' : 'neutral';
+  const size = faction === 'neutral' ? '' : levelAssetSize(city.level);
+  const asset = faction === 'neutral' ? 'city_neutral' : `city_${faction}_${size}`;
   return `
     <button class="city tone-${city.tone} tier-${tier.key}" data-city="${city.id}" style="--x:${city.x}%;--y:${city.y}%" aria-label="${city.name}, nível ${city.level}, ${tier.label}">
       <span class="selection-ring"></span>
       <span class="city-label"><strong>${city.name}</strong><small><b>${city.level}</b> ${city.owner}</small></span>
-      <span class="castle" aria-hidden="true">
-        <span class="castle-shadow"></span><span class="wall"></span>${towers}<span class="keep"><i class="flag"></i></span><span class="gate"></span>
-      </span>
+      <img class="castle-art" src="assets/map/painted/${asset}.webp" alt="" aria-hidden="true">
     </button>`;
 }
 
+function levelAssetSize(level) {
+  if (level >= 75) return 'large';
+  if (level >= 25) return 'medium';
+  return 'small';
+}
+
 cityLayer.innerHTML = cities.map(castleMarkup).join('');
+
+// A long-running scout column makes the pilot region feel inhabited without
+// changing ownership, battle rules, or the player's available troops.
+marches = [{
+  id: 'pilot-scouts', type: 'return', status: 'returning', originId: 'pedra-alta',
+  destinationId: 'aurora', playerId: 'north', troops: 1240,
+  departureAt: Date.now() - 20 * 60_000, arrivalAt: Date.now() + 40 * 60_000,
+  travelMs: 60 * 60_000
+}];
 
 function formatDuration(milliseconds) {
   const seconds = Math.max(0, Math.ceil(milliseconds / 1000));
@@ -72,7 +87,7 @@ function renderMarches(now = Date.now()) {
     const length = WarlordBattle.distanceBetweenCities(from, to);
     const hostile = march.playerId !== PLAYER_ID;
     return `<div class="march ${hostile ? 'hostile' : 'friendly'}" style="--from-x:${from.x}%;--from-y:${from.y}%;--army-x:${x}%;--army-y:${y}%;--route-length:${length}%;--route-angle:${angle}deg" aria-label="${hostile ? 'Ataque inimigo' : 'Exército aliado'}, ${formatTroops(march.troops)} tropas, ${formatDuration(march.arrivalAt - now)} restantes">
-      <span class="march-path"></span><span class="army">⚔<i>${formatTroops(march.troops)}</i></span><span class="march-time">${formatDuration(march.arrivalAt - now)}</span>
+      <span class="march-path"></span><span class="army"><img src="assets/map/painted/army_${hostile ? 'red' : 'blue'}.webp" alt=""><i>${formatTroops(march.troops)}</i></span><span class="march-time">${formatDuration(march.arrivalAt - now)}</span>
     </div>`;
   }).join('');
 }
