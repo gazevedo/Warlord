@@ -99,9 +99,11 @@ function applyView() {
 }
 
 function clampView() {
-  view.scale = Math.min(1.35, Math.max(0.62, view.scale));
-  view.x = Math.min(260, Math.max(-260, view.x));
-  view.y = Math.min(220, Math.max(-180, view.y));
+  view.scale = Math.min(1.8, Math.max(0.55, view.scale));
+  const horizontalLimit = Math.max(0, ((world.offsetWidth * view.scale) - viewport.clientWidth) / 2);
+  const verticalLimit = Math.max(0, ((world.offsetHeight * view.scale) - viewport.clientHeight) / 2);
+  view.x = Math.min(horizontalLimit, Math.max(-horizontalLimit, view.x));
+  view.y = Math.min(verticalLimit, Math.max(-verticalLimit, view.y));
 }
 
 function setZoom(delta) {
@@ -192,6 +194,10 @@ document.querySelector('#recenter').addEventListener('click', () => {
   view = initialView();
   applyView();
   showToast('Mapa centralizado');
+});
+window.addEventListener('resize', () => {
+  clampView();
+  applyView();
 });
 document.querySelector('#close-panel').addEventListener('click', closePanel);
 document.querySelectorAll('[data-toast]').forEach((button) => button.addEventListener('click', () => showToast(button.dataset.toast)));
