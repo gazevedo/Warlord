@@ -14,6 +14,7 @@ Os arquivos são reproduzíveis com:
 python tools/generate_map_assets.py
 ```
 
-O script renderiza em resolução dupla e reduz a arte com antialiasing antes de
+O script renderiza em resolução dupla, aplica variação de pigmento em baixa
+frequência e veladuras localizadas, e reduz a arte com antialiasing antes de
 gravar os WebP finais. O CSS do jogo posiciona e anima esses assets; ele não
 desenha montanhas, árvores, cidades, pontes, pedras, fazendas ou tropas.

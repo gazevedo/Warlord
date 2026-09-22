@@ -8,7 +8,7 @@ from pathlib import Path
 import math
 import random
 
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,7 +24,33 @@ def sc(points):
     return [(int(x * S), int(y * S)) for x, y in points]
 
 
+def painted_surface(image, name):
+    """Add restrained pigment variation without contaminating transparency."""
+    seed = sum((index + 1) * ord(char) for index, char in enumerate(name))
+    rng = random.Random(seed)
+    alpha = image.getchannel("A")
+
+    # Low-frequency value shifts read as overlapping brush loads rather than
+    # synthetic pixel noise. Multiply keeps the original local lighting.
+    grain = Image.effect_noise(image.size, 34).filter(ImageFilter.GaussianBlur(1.8 * S))
+    grain = ImageEnhance.Contrast(grain).enhance(.72).point(lambda value: 205 + value // 5)
+    pigment = Image.merge("RGBA", (grain, grain, grain, alpha))
+    image = ImageChops.multiply(image, pigment)
+    image.putalpha(alpha)
+
+    glaze = Image.new("RGBA", image.size)
+    brush = ImageDraw.Draw(glaze)
+    for _ in range(max(24, image.width * image.height // 9000)):
+        x, y = rng.randrange(image.width), rng.randrange(image.height)
+        radius = rng.randint(2 * S, 9 * S)
+        color = rng.choice(((255, 239, 181, 18), (35, 48, 38, 16), (191, 143, 73, 12)))
+        brush.ellipse((x-radius*2, y-radius, x+radius*2, y+radius), fill=color)
+    glaze.putalpha(ImageChops.multiply(glaze.getchannel("A"), alpha))
+    return Image.alpha_composite(image, glaze.filter(ImageFilter.GaussianBlur(.55 * S)))
+
+
 def finish(image, name, size=None):
+    image = painted_surface(image, name)
     if size:
         image = image.resize(size, Image.Resampling.LANCZOS)
     else:
