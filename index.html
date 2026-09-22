@@ -33,14 +33,16 @@
     </section>
 
     <header class="top-hud" aria-label="Status do jogador">
-      <button class="avatar hud-button" aria-label="Abrir perfil">WA<span>27</span></button>
-      <div class="player-summary"><strong>Lord Azevedo</strong><span>⚔ 184.2K poder</span></div>
+      <button class="avatar hud-button" aria-label="Abrir perfil"><span class="wolf-mark">♞</span><i>42</i></button>
+      <div class="player-summary"><strong>Lord Azevedo</strong><span>⚔ 1.284.320</span></div>
       <div class="resources" aria-label="Recursos">
-        <button class="resource" aria-label="Madeira: 82 mil"><span>🪵</span><b>82K</b></button>
-        <button class="resource" aria-label="Pedra: 46 mil"><span>⬡</span><b>46K</b></button>
+        <button class="resource" aria-label="Madeira: 1,2 milhão"><span>🪵</span><b>1,2M</b></button>
+        <button class="resource" aria-label="Pedra: 980 mil"><span>⬡</span><b>980K</b></button>
+        <button class="resource metal" aria-label="Metal: 740 mil"><span>◆</span><b>740K</b></button>
+        <button class="resource coins" aria-label="Moedas: 2,3 milhões"><span>●</span><b>2,3M</b></button>
         <button class="resource premium" aria-label="Gemas: 680"><span>◆</span><b>680</b></button>
       </div>
-      <button class="round-button notification" aria-label="Notificações, 3 novas">🔔<i>3</i></button>
+      <button class="round-button notification" aria-label="Mensagens, 3 novas">✉<i>3</i></button>
     </header>
 
     <nav class="side-actions" aria-label="Atalhos">
@@ -84,6 +86,12 @@
     </dialog>
 
     <aside class="attack-alert" id="attack-alert" hidden><button id="focus-attack"><strong>⚠ ATAQUE RECEBIDO</strong><span id="alert-time">00:00</span></button></aside>
+
+    <aside class="alliance-chat" aria-label="Conversa da aliança">
+      <p><b>[BR1] Lucas:</b> Reforço a caminho!</p>
+      <p><b>[BR1] Marina:</b> Boa!</p>
+      <p><b class="enemy-chat">[WOL] Dark:</b> Alguém online?</p>
+    </aside>
 
     <dialog class="battle-report" id="battle-report">
       <form method="dialog">
