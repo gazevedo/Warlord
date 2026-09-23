@@ -1,12 +1,12 @@
 const PLAYER_ID = 'player';
 const battleConfig = WarlordBattle.DEFAULT_BATTLE_CONFIG;
 const cities = [
-  { id: 'aurora', name: 'Aurora', level: 83, owner: 'Lord Azevedo', ownerId: PLAYER_ID, troops: 128400, attackBonus: 1.5, defenseBonus: 1, wallPower: 30000, x: 43, y: 44, tone: 'blue' },
-  { id: 'pedra-alta', name: 'Pedra Alta', level: 34, owner: 'Clã do Norte', ownerId: 'north', troops: 43700, defenseBonus: 0.45, wallPower: 18000, x: 69, y: 31, tone: 'red' },
-  { id: 'vale-verde', name: 'Vale Verde', level: 12, owner: 'Sem aliança', ownerId: 'green', troops: 8900, defenseBonus: 0.1, wallPower: 5000, x: 27, y: 67, tone: 'green' },
-  { id: 'forte-sol', name: 'Forte do Sol', level: 157, owner: 'Império Dourado', ownerId: 'gold', troops: 305200, defenseBonus: 1.2, wallPower: 90000, x: 76, y: 71, tone: 'gold' },
-  { id: 'ravenna', name: 'Ravenna', level: 31, owner: 'Guardiões', ownerId: 'north', troops: 38900, defenseBonus: 0.35, wallPower: 16000, x: 55, y: 20, tone: 'blue' },
-  { id: 'porto-real', name: 'Porto Real', level: 22, owner: 'Liga Real', ownerId: 'green', troops: 21400, defenseBonus: 0.25, wallPower: 11000, x: 18, y: 84, tone: 'gold' }
+  { id: 'aurora', name: 'Aurora', level: 83, owner: 'Lord Azevedo', ownerId: PLAYER_ID, theme: 'blue', troops: 128400, attackBonus: 1.5, defenseBonus: 1, wallPower: 30000, x: 43, y: 44, tone: 'blue' },
+  { id: 'pedra-alta', name: 'Pedra Alta', level: 34, owner: 'Clã do Norte', ownerId: 'north', theme: 'blue', troops: 43700, defenseBonus: 0.45, wallPower: 18000, x: 69, y: 31, tone: 'red' },
+  { id: 'vale-verde', name: 'Vale Verde', level: 12, owner: 'Sem aliança', ownerId: 'green', theme: 'blue', troops: 8900, defenseBonus: 0.1, wallPower: 5000, x: 27, y: 67, tone: 'green' },
+  { id: 'forte-sol', name: 'Forte do Sol', level: 157, owner: 'Império Dourado', ownerId: 'gold', theme: 'blue', troops: 305200, defenseBonus: 1.2, wallPower: 90000, x: 76, y: 71, tone: 'gold' },
+  { id: 'ravenna', name: 'Ravenna', level: 31, owner: 'Guardiões', ownerId: 'north', theme: 'blue', troops: 38900, defenseBonus: 0.35, wallPower: 16000, x: 55, y: 20, tone: 'blue' },
+  { id: 'porto-real', name: 'Porto Real', level: 22, owner: 'Liga Real', ownerId: 'green', theme: 'blue', troops: 21400, defenseBonus: 0.25, wallPower: 11000, x: 18, y: 84, tone: 'gold' }
 ];
 
 const world = document.querySelector('#world');
@@ -43,21 +43,13 @@ function tierFor(level) {
 
 function castleMarkup(city) {
   const tier = tierFor(city.level);
-  const faction = city.tone === 'red' ? 'red' : city.ownerId === PLAYER_ID || city.tone === 'blue' ? 'blue' : 'neutral';
-  const size = faction === 'neutral' ? '' : levelAssetSize(city.level);
-  const asset = faction === 'neutral' ? 'city_neutral' : `city_${faction}_${size}`;
+  const asset = WarlordCityAssets.cityAssetFor(city.level, city.theme);
   return `
     <button class="city tone-${city.tone} tier-${tier.key}" data-city="${city.id}" style="--x:${city.x}%;--y:${city.y}%" aria-label="${city.name}, nível ${city.level}, ${tier.label}">
       <span class="selection-ring"></span>
       <span class="city-label"><strong>${city.name}</strong><small><b>${city.level}</b> ${city.owner}</small></span>
-      <img class="castle-art" src="assets/map/painted/${asset}.webp" alt="" aria-hidden="true">
+      <img class="castle-art" src="${asset}" alt="" aria-hidden="true">
     </button>`;
-}
-
-function levelAssetSize(level) {
-  if (level >= 75) return 'large';
-  if (level >= 25) return 'medium';
-  return 'small';
 }
 
 cityLayer.innerHTML = cities.map(castleMarkup).join('');
