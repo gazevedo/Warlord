@@ -176,17 +176,33 @@ Com penalidade inicial `1`, uma cidade Lv.103 torna-se Lv.102. Uma cidade Lv.1 p
 
 ## 12. Representação visual
 
-| Nível | Tier |
-| --- | --- |
-| 1–9 | Pequeno assentamento |
-| 10–24 | Vila fortificada |
-| 25–49 | Pequeno castelo |
-| 50–74 | Castelo |
-| 75–99 | Grande castelo |
-| 100–149 | Fortaleza |
-| 150+ | Cidadela |
+O castelo recebe uma evolução visual a cada dez níveis, até atingir sua
+representação máxima no nível 100:
 
-Não é necessário um modelo por nível. Torres, muralhas, bandeiras, altura e decoração comunicam progressão sem fazer cidades avançadas ocuparem áreas enormes.
+| Nível da cidade | Asset visual |
+| --- | --- |
+| 1–9 | `city01.png` |
+| 10–19 | `city10.png` |
+| 20–29 | `city20.png` |
+| 30–39 | `city30.png` |
+| 40–49 | `city40.png` |
+| 50–59 | `city50.png` |
+| 60–69 | `city60.png` |
+| 70–79 | `city70.png` |
+| 80–89 | `city80.png` |
+| 90–99 | `city90.png` |
+| 100+ | `city100.png` — estágio visual máximo |
+
+O nível funcional da cidade **não possui limite máximo**. Uma cidade pode
+continuar evoluindo para os níveis 101, 150, 1.000 ou superiores, conservando o
+asset `city100.png`. Produção, defesa, muralha, custos e demais valores derivados
+continuam sendo recalculados normalmente; somente a progressão visual fica
+limitada ao estágio do nível 100.
+
+Não é necessário um modelo por nível. Dentro de cada faixa, o mesmo asset é
+preservado. A mudança de torres, muralhas, bandeiras, altura e decoração ocorre
+apenas ao atravessar cada múltiplo de dez, sem fazer cidades avançadas ocuparem
+áreas enormes.
 
 O HUD flutuante deve ser compacto e priorizar nome, nível e tropas quando permitidas. Ao selecionar, aplicar halo, destaque e ações contextuais mantendo o mapa visível; não abrir imediatamente uma tela cheia nem fazer a cidade parecer um botão sobre o mundo.
 
@@ -198,7 +214,7 @@ Toda mudança de nível recalcula:
 - bônus defensivo;
 - poder da muralha;
 - custo do próximo nível;
-- tier visual, quando um limite for atravessado.
+- tier visual, quando um limite de dez níveis até o nível 100 for atravessado.
 
 Produção acumulada até o instante da mudança deve ser materializada com a taxa anterior; a nova taxa vale a partir desse instante.
 

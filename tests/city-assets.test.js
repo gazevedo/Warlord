@@ -16,7 +16,7 @@ test('seleciona um asset city_blue para cada faixa de dez níveis', () => {
     [70, 'city70.png'], [79, 'city70.png'],
     [80, 'city80.png'], [89, 'city80.png'],
     [90, 'city90.png'], [99, 'city90.png'],
-    [100, 'city100.png'], [157, 'city100.png']
+    [100, 'city100.png'], [157, 'city100.png'], [1_000_000, 'city100.png']
   ];
 
   expectations.forEach(([level, filename]) => {
