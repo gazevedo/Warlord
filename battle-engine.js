@@ -26,6 +26,7 @@
     const errors = [];
     if (!origin || origin.ownerId !== playerId) errors.push('A cidade de origem deve pertencer ao jogador.');
     if (!destination || destination.ownerId === playerId) errors.push('A cidade de destino deve ser inimiga.');
+    if (destination?.isCapital) errors.push('O centro de um reino não pode ser tomado.');
     if (origin && destination && origin.id === destination.id) errors.push('Origem e destino devem ser diferentes.');
     if (!Number.isInteger(troops) || troops <= 0) errors.push('A quantidade enviada deve ser maior que zero.');
     if (origin && Number.isFinite(troops) && troops > origin.troops) errors.push('A cidade de origem não possui tropas suficientes.');
@@ -81,7 +82,8 @@
     const troopDefensePower = defendingTroops * (1 + defenderBonus + cityDefenseBonus);
     const defensePower = troopDefensePower + wallPower;
     const ratio = defensePower === 0 ? Infinity : attackPower / defensePower;
-    const attackerWon = ratio > 1;
+    const capitalProtected = city.isCapital === true;
+    const attackerWon = ratio > 1 && !capitalProtected;
     const rates = casualtyRates(ratio, config.casualtyCurve);
     const attackerLosses = Math.min(march.troops, Math.round(march.troops * rates.attacker));
     const defenderLosses = Math.min(defendingTroops, Math.round(defendingTroops * rates.defender));
@@ -114,7 +116,8 @@
       attackerSurvivors,
       defenderSurvivors,
       result: attackerWon ? 'victory' : 'defeat',
-      conquered: attackerWon
+      conquered: attackerWon,
+      capitalProtected
     };
   }
 

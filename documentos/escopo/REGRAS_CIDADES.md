@@ -55,7 +55,7 @@ Valores iniciais propostos:
 
 - defesa por nível: `0,03` (3%);
 - penalidade por conquista: `1` nível;
-- tiers: `1`, `10`, `25`, `50`, `75`, `100` e `150`.
+- tiers visuais: `1`, `10`, `20`, `30`, `40`, `50`, `60`, `70`, `80`, `90` e `100` (máximo visual).
 
 Fórmulas são intercambiáveis e configuráveis; nenhuma constante de balanceamento deve ficar espalhada na interface ou em regras de domínio.
 
@@ -148,13 +148,32 @@ Não permitir ataque comum a aliados. Cidades inimigas e aliadas mostram apenas 
 
 A cidade própria mostra nome, nível, tropas, produção, muralha, defesa e próximo nível.
 
-## 9. Capital
+## 9. Centro do reino
 
-Cada jogador pode marcar uma cidade como `CAPITAL`. Ela recebe identificação visual — coroa, bandeira especial, moldura ou efeito discreto — mas usa o mesmo sistema de níveis, produção, defesa, muralha e conquista. Regras econômicas ou militares exclusivas para capital ficam fora do escopo inicial.
+Cada participante inicia com cinco vilas próximas de nível 1. Exatamente uma
+delas é marcada como `CAPITAL` e representa o centro do reino.
+
+No cenário local de validação, o jogador humano inicia ao lado de seis jogadores
+bot. Os sete participantes seguem a mesma regra de cinco vilas e um centro.
+
+O centro recebe identificação visual própria e **nunca pode ser atacado, tomado
+ou ter sua propriedade alterada por batalha**. O proprietário pode transferir o
+centro para qualquer outra cidade que já possua. A transferência remove a marca
+da cidade anterior e a aplica atomicamente ao novo destino, garantindo que cada
+participante continue com exatamente um centro.
+
+A proteção acompanha a marca de centro: depois de uma transferência, a cidade
+anterior volta a poder ser conquistada e a nova cidade torna-se protegida. Nível,
+produção, defesa e muralha continuam seguindo o sistema comum de cidades.
 
 ## 10. Cidades neutras
 
 Cidades `NEUTRAL` podem ter nível, muralha, tropas NPC, produção e posição. São conquistadas pela mesma mecânica de batalha, sem combate alternativo. Após a conquista, tornam-se `OWNED` pelo vencedor e recebem os sobreviventes atacantes.
+
+O mundo inicial inclui vilas neutras distribuídas no entorno das regiões dos
+participantes. O mapa calcula suas dimensões pela quantidade de jogadores e
+adiciona novas regiões quando necessário, preservando espaço para os grupos de
+cinco vilas e para futuras entradas.
 
 ## 11. Conquista
 
@@ -249,7 +268,9 @@ O nível é o indicador principal do desenvolvimento territorial. Uma cidade ava
 - [ ] Defesa por nível só beneficia guarnições.
 - [ ] Muralha defende inclusive cidades sem tropas.
 - [ ] `OWNED`, `ALLY`, `ENEMY` e `NEUTRAL` controlam dados e ações.
-- [ ] Capital usa o sistema comum com diferenciação visual.
+- [ ] Cada participante inicia com cinco vilas próximas de nível 1 e exatamente um centro.
+- [ ] Centro não pode ser atacado ou conquistado e pode ser transferido entre cidades do proprietário.
+- [ ] Mundo inclui vilas neutras conquistáveis e expande suas dimensões conforme entram participantes.
 - [ ] Conquista troca proprietário, instala sobreviventes e nunca reduz abaixo de Lv.1.
 - [ ] Mudanças de nível recalculam todos os derivados e o tier quando necessário.
 - [ ] Seleção mantém a cidade integrada ao mundo e o mapa visível.

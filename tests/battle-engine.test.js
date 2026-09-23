@@ -62,3 +62,15 @@ test('empate favorece o defensor e causa baixas nos dois lados', () => {
   assert.equal(report.attackerLosses, 500);
   assert.equal(report.defenderLosses, 500);
 });
+
+test('centro não pode receber marcha nem ser conquistado', () => {
+  const origin = city();
+  const capital = city({ id: 'capital', ownerId: 'enemy', owner: 'Rival', isCapital: true, troops: 1 });
+  assert.match(validateAttack({ origin, destination: capital, troops: 500, playerId: 'player' })[0], /não pode ser tomado/);
+  assert.throws(() => createMarch({ id: 'blocked', origin, destination: capital, troops: 500, playerId: 'player' }), /não pode ser tomado/);
+
+  const report = resolveBattle({ march: { troops: 1_000_000, attackBonus: 10, playerId: 'player' }, city: capital });
+  assert.equal(report.capitalProtected, true);
+  assert.equal(report.conquered, false);
+  assert.equal(capital.ownerId, 'enemy');
+});

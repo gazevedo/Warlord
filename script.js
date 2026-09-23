@@ -1,13 +1,7 @@
-const PLAYER_ID = 'player';
+const PLAYER_ID = WarlordWorld.PLAYER_ID;
 const battleConfig = WarlordBattle.DEFAULT_BATTLE_CONFIG;
-const cities = [
-  { id: 'aurora', name: 'Aurora', level: 83, owner: 'Lord Azevedo', ownerId: PLAYER_ID, theme: 'blue', troops: 128400, attackBonus: 1.5, defenseBonus: 1, wallPower: 30000, x: 43, y: 44, tone: 'blue' },
-  { id: 'pedra-alta', name: 'Pedra Alta', level: 34, owner: 'Clã do Norte', ownerId: 'north', theme: 'blue', troops: 43700, defenseBonus: 0.45, wallPower: 18000, x: 69, y: 31, tone: 'red' },
-  { id: 'vale-verde', name: 'Vale Verde', level: 12, owner: 'Sem aliança', ownerId: 'green', theme: 'blue', troops: 8900, defenseBonus: 0.1, wallPower: 5000, x: 27, y: 67, tone: 'green' },
-  { id: 'forte-sol', name: 'Forte do Sol', level: 157, owner: 'Império Dourado', ownerId: 'gold', theme: 'blue', troops: 305200, defenseBonus: 1.2, wallPower: 90000, x: 76, y: 71, tone: 'gold' },
-  { id: 'ravenna', name: 'Ravenna', level: 31, owner: 'Guardiões', ownerId: 'north', theme: 'blue', troops: 38900, defenseBonus: 0.35, wallPower: 16000, x: 55, y: 20, tone: 'blue' },
-  { id: 'porto-real', name: 'Porto Real', level: 22, owner: 'Liga Real', ownerId: 'green', theme: 'blue', troops: 21400, defenseBonus: 0.25, wallPower: 11000, x: 18, y: 84, tone: 'gold' }
-];
+const gameWorld = WarlordWorld.createInitialWorld({ botCount: 6 });
+const cities = gameWorld.cities;
 
 const world = document.querySelector('#world');
 const viewport = document.querySelector('#world-viewport');
@@ -18,6 +12,8 @@ const toast = document.querySelector('#toast');
 const hint = document.querySelector('#map-hint');
 const attackDialog = document.querySelector('#attack-dialog');
 const reportDialog = document.querySelector('#battle-report');
+world.style.setProperty('--world-width', `${gameWorld.dimensions.width}px`);
+world.style.setProperty('--world-height', `${gameWorld.dimensions.height}px`);
 
 const initialView = () => ({
   x: 0,
@@ -31,37 +27,18 @@ let originCity = null;
 let marches = [];
 let toastTimer;
 
-function tierFor(level) {
-  if (level >= 150) return { key: 'citadel', label: 'Grande cidadela', towers: 5 };
-  if (level >= 100) return { key: 'fortress', label: 'Fortaleza', towers: 4 };
-  if (level >= 75) return { key: 'great-castle', label: 'Grande castelo', towers: 4 };
-  if (level >= 50) return { key: 'castle', label: 'Castelo desenvolvido', towers: 3 };
-  if (level >= 25) return { key: 'small-castle', label: 'Pequeno castelo', towers: 3 };
-  if (level >= 10) return { key: 'village', label: 'Vila fortificada', towers: 2 };
-  return { key: 'settlement', label: 'Pequeno assentamento', towers: 1 };
-}
-
 function castleMarkup(city) {
-  const tier = tierFor(city.level);
   const asset = WarlordCityAssets.cityAssetFor(city.level, city.theme);
   return `
-    <button class="city tone-${city.tone} tier-${tier.key}" data-city="${city.id}" style="--x:${city.x}%;--y:${city.y}%" aria-label="${city.name}, nível ${city.level}, ${tier.label}">
+    <button class="city tone-${city.tone}${city.isCapital ? ' capital' : ''}" data-city="${city.id}" style="--x:${city.x}%;--y:${city.y}%" aria-label="${city.name}, nível ${city.level}${city.isCapital ? ', centro protegido' : ''}">
       <span class="selection-ring"></span>
+      ${city.isCapital ? '<span class="capital-mark" title="Centro protegido">♛</span>' : ''}
       <span class="city-label"><strong>${city.name}</strong><small><b>${city.level}</b> ${city.owner}</small></span>
       <img class="castle-art" src="${asset}" alt="" aria-hidden="true">
     </button>`;
 }
 
 cityLayer.innerHTML = cities.map(castleMarkup).join('');
-
-// A long-running scout column makes the pilot region feel inhabited without
-// changing ownership, battle rules, or the player's available troops.
-marches = [{
-  id: 'pilot-scouts', type: 'return', status: 'returning', originId: 'pedra-alta',
-  destinationId: 'aurora', playerId: 'north', troops: 1240,
-  departureAt: Date.now() - 20 * 60_000, arrivalAt: Date.now() + 40 * 60_000,
-  travelMs: 60 * 60_000
-}];
 
 function formatDuration(milliseconds) {
   const seconds = Math.max(0, Math.ceil(milliseconds / 1000));
@@ -119,8 +96,12 @@ function selectCity(id) {
   document.querySelector('#panel-troops').textContent = `${formatTroops(city.troops)} tropas`;
   document.querySelector('#panel-crest').className = `city-crest tone-${city.tone}`;
   const ownCity = city.ownerId === PLAYER_ID;
+  const capitalAction = document.querySelector('#capital-action');
+  capitalAction.hidden = !ownCity;
+  capitalAction.disabled = city.isCapital;
+  document.querySelector('#capital-label').textContent = city.isCapital ? 'Centro atual' : 'Mover centro';
   document.querySelector('#attack-label').textContent = ownCity ? (originCity?.id === city.id ? 'Origem pronta' : 'Mobilizar') : 'Atacar';
-  document.querySelector('#attack-action').disabled = ownCity && originCity?.id === city.id;
+  document.querySelector('#attack-action').disabled = (city.isCapital && !ownCity) || (ownCity && originCity?.id === city.id);
   panel.classList.add('visible');
   panel.setAttribute('aria-hidden', 'false');
   hint.classList.add('hidden');
@@ -195,8 +176,18 @@ document.querySelector('#close-panel').addEventListener('click', closePanel);
 document.querySelectorAll('[data-toast]').forEach((button) => button.addEventListener('click', () => showToast(button.dataset.toast)));
 document.querySelectorAll('[data-action]').forEach((button) => button.addEventListener('click', () => showToast(`${button.dataset.action}: ${selectedCity?.name ?? ''}`)));
 
+document.querySelector('#capital-action').addEventListener('click', () => {
+  if (!selectedCity || !WarlordWorld.moveCapital(cities, PLAYER_ID, selectedCity.id)) return;
+  showToast(`${selectedCity.name} agora é o centro do reino`);
+  refreshCities();
+});
+
 document.querySelector('#attack-action').addEventListener('click', () => {
   if (!selectedCity) return;
+  if (selectedCity.isCapital && selectedCity.ownerId !== PLAYER_ID) {
+    showToast('O centro de um reino não pode ser tomado');
+    return;
+  }
   if (selectedCity.ownerId === PLAYER_ID) {
     originCity = selectedCity;
     showToast(`${selectedCity.name} definida como origem`);

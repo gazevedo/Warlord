@@ -73,7 +73,7 @@
         <p><b id="panel-level">Nível 1</b> · <span id="panel-troops">0 tropas</span></p>
       </div>
       <div class="city-actions">
-        <button data-action="Visão da cidade"><span>👁</span>Visitar</button>
+        <button id="capital-action" hidden><span>♛</span><span id="capital-label">Mover centro</span></button>
         <button class="primary" id="attack-action"><span>⚔</span><span id="attack-label">Atacar</span></button>
         <button data-action="Batedor enviado"><span>🔭</span>Espionar</button>
       </div>
@@ -120,6 +120,7 @@
   </main>
   <script src="battle-engine.js"></script>
   <script src="city-assets.js"></script>
+  <script src="world-state.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
