@@ -4,6 +4,8 @@ const {
   DEFAULT_BOT_COUNT,
   PLAYER_ID,
   STARTING_CITIES_PER_PLAYER,
+  TERRAIN_TILE,
+  createTerrainTiles,
   createInitialWorld,
   moveCapital
 } = require('../world-state.js');
@@ -35,6 +37,20 @@ test('expande o mapa quando novos participantes entram', () => {
   assert.ok(expanded.dimensions.width > initial.dimensions.width);
   assert.ok(expanded.dimensions.height > initial.dimensions.height);
   assert.equal(expanded.cities.filter(({ ownerId }) => ownerId !== null).length, 21 * STARTING_CITIES_PER_PLAYER);
+});
+
+test('monta a base do mapa com uma malha expansível do terreno de grama', () => {
+  const initial = createInitialWorld({ botCount: 6 });
+  const expanded = createInitialWorld({ botCount: 20 });
+  assert.ok(initial.terrain.tiles.length > 0);
+  assert.ok(expanded.terrain.tiles.length > initial.terrain.tiles.length);
+  assert.equal(initial.terrain.tiles.every(({ asset }) => asset === TERRAIN_TILE.asset), true);
+
+  const custom = createTerrainTiles({ width: 1_600, height: 1_200 });
+  assert.ok(Math.max(...custom.map(({ x, width }) => x + width)) >= 1_600);
+  assert.ok(Math.max(...custom.map(({ y, height }) => y + height)) >= 1_200);
+  assert.ok(Math.min(...custom.map(({ x }) => x)) <= 0);
+  assert.ok(Math.min(...custom.map(({ y }) => y)) <= 0);
 });
 
 test('transfere o centro somente para outra cidade do proprietário', () => {

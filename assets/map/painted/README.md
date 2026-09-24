@@ -5,8 +5,9 @@ de cenário são WebP rasterizados, compartilham perspectiva elevada 3/4, contor
 suave, luz superior esquerda e sombra projetada para a direita.
 
 O kit inclui cinco cordilheiras, seis agrupamentos de floresta, sete cidades,
-treze elementos de decoração e dois exércitos. `terrain_pilot.webp` reúne a base
-de grama pintada, manchas de terra, estrada, lago e rio com margens integradas.
+treze elementos de decoração e dois exércitos. A base do mundo não faz mais
+parte deste kit: ela é montada dinamicamente com os tiles raster disponíveis em
+`assets/map/terrain/`.
 
 Os arquivos são reproduzíveis com:
 

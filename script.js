@@ -7,6 +7,7 @@ const world = document.querySelector('#world');
 const viewport = document.querySelector('#world-viewport');
 const cityLayer = document.querySelector('#cities');
 const marchLayer = document.querySelector('#marches');
+const terrainLayer = document.querySelector('#terrain-tiles');
 const panel = document.querySelector('#city-panel');
 const toast = document.querySelector('#toast');
 const hint = document.querySelector('#map-hint');
@@ -14,6 +15,7 @@ const attackDialog = document.querySelector('#attack-dialog');
 const reportDialog = document.querySelector('#battle-report');
 world.style.setProperty('--world-width', `${gameWorld.dimensions.width}px`);
 world.style.setProperty('--world-height', `${gameWorld.dimensions.height}px`);
+terrainLayer.innerHTML = gameWorld.terrain.tiles.map((tile) => `<img src="${tile.asset}" alt="" style="left:${tile.x}px;top:${tile.y}px;width:${tile.width}px;height:${tile.height}px">`).join('');
 
 const initialView = () => ({
   x: 0,

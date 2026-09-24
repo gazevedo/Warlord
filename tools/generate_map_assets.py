@@ -5,7 +5,6 @@ sprite has a soft, painted edge while remaining lightweight in the browser.
 """
 
 from pathlib import Path
-import math
 import random
 
 from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter
@@ -207,48 +206,6 @@ def army(name,color):
     finish(im,name)
 
 
-def terrain_base():
-    rng=random.Random(8421); w,h=1600,1200
-    im=Image.new("RGB",(w,h),(108,137,67)); px=im.load()
-    # broad blended color fields plus fine painted grain
-    fields=[(220,220,330,(19,28,-8)),(650,850,420,(-4,13,-8)),(1170,340,390,(19,-4,-12)),(1320,980,360,(-16,12,-2))]
-    for y in range(h):
-        for x in range(w):
-            rr,gg,bb=108,137,67
-            for fx,fy,rad,delta in fields:
-                power=max(0,1-math.hypot(x-fx,y-fy)/rad)
-                rr+=delta[0]*power; gg+=delta[1]*power; bb+=delta[2]*power
-            grain=rng.randint(-5,5)
-            px[x,y]=(int(rr+grain),int(gg+grain),int(bb+grain))
-    d=ImageDraw.Draw(im,"RGBA")
-    # dry meadows and worn earth glazes
-    for _ in range(170):
-        x,y=rng.randrange(w),rng.randrange(h); rx,ry=rng.randint(10,55),rng.randint(4,20)
-        d.ellipse((x-rx,y-ry,x+rx,y+ry),fill=(173,154,79,rng.randint(4,18)))
-    # integrated river with earthen banks, irregular width and highlights
-    river=[(1060,-40),(1018,105),(1056,250),(1002,400),(1037,550),(955,680),(907,820),(944,955),(869,1240)]
-    d.line(river,fill=(71,77,48,125),width=112,joint="curve")
-    d.line(river,fill=(181,165,99,255),width=96,joint="curve")
-    d.line(river,fill=(42,117,141,255),width=74,joint="curve")
-    d.line(river,fill=(55,145,166,255),width=55,joint="curve")
-    d.line([(x-10,y) for x,y in river],fill=(123,197,196,170),width=7,joint="curve")
-    # lake
-    d.ellipse((755,755,997,925),fill=(179,161,94,255)); d.ellipse((770,766,983,910),fill=(41,125,148,255)); d.ellipse((787,779,969,892),fill=(61,151,168,255))
-    # road behind the assets
-    road=[(-30,665),(200,620),(390,644),(570,575),(750,606),(915,548),(1120,565),(1370,500),(1640,524)]
-    d.line(road,fill=(103,78,43,150),width=35,joint="curve"); d.line(road,fill=(195,157,91,255),width=27,joint="curve"); d.line(road,fill=(232,197,126,160),width=5,joint="curve")
-    # grass marks, pebbles and reeds concentrated by regions
-    for _ in range(820):
-        x,y=rng.randrange(w),rng.randrange(h); col=rng.choice([(48,91,47,65),(207,187,100,55),(69,113,47,75)])
-        if 970<x<1095: continue
-        d.arc((x-6,y-2,x+2,y+8),185,280,fill=col,width=1); d.arc((x,y-2,x+8,y+8),260,355,fill=col,width=1)
-    for _ in range(95):
-        x=rng.randint(900,1100); y=rng.randint(30,1160)
-        d.ellipse((x-3,y-2,x+4,y+2),fill=(85,82,63,125))
-    im=im.filter(ImageFilter.GaussianBlur(.35)).filter(ImageFilter.UnsharpMask(1.4,120,2))
-    im.save(OUT/"terrain_pilot.webp","WEBP",quality=92,method=6)
-
-
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
     for i in range(1,4): mountain(f"mountain_cluster_0{i}",100+i,wide=360+i*18,high=230+i*5)
@@ -266,7 +223,6 @@ def main():
     decoration("bridge_wood","bridge",741); decoration("bridge_stone","bridge",742)
     decoration("cloud_01","cloud",751); decoration("cloud_02","cloud",752)
     army("army_blue","blue"); army("army_red","red")
-    terrain_base()
 
 
 if __name__ == "__main__":
