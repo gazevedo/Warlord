@@ -4,9 +4,9 @@ Este diretório contém a primeira biblioteca visual do mapa. Todos os elementos
 de cenário são WebP rasterizados, compartilham perspectiva elevada 3/4, contorno
 suave, luz superior esquerda e sombra projetada para a direita.
 
-O kit inclui cinco cordilheiras, seis agrupamentos de floresta, sete cidades,
-treze elementos de decoração e dois exércitos. `terrain_pilot.webp` reúne a base
-de grama pintada, manchas de terra, estrada, lago e rio com margens integradas.
+O kit inclui cidades, vilas, fazendas, pontes, nuvens, estruturas especiais e
+exércitos reutilizáveis. A vegetação do mapa usa os biomas de
+`assets/vegetation/`; a base usa os tiles de `assets/terrain/`.
 
 Os arquivos são reproduzíveis com:
 

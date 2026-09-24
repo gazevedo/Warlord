@@ -13,10 +13,10 @@
 <body>
   <main class="game" aria-label="Mapa do reino de Valoria">
     <section class="world-viewport" id="world-viewport" aria-label="Mundo 3D interativo. Arraste para mover e use os controles para ampliar.">
-      <div class="clouds" aria-hidden="true"><img src="assets/map/painted/cloud_01.webp" alt=""><img src="assets/map/painted/cloud_02.webp" alt=""></div>
+      <div class="clouds" aria-hidden="true"><img src="assets/painted/cloud_01.webp" alt=""><img src="assets/painted/cloud_02.webp" alt=""></div>
       <div class="world" id="world">
         <div class="terrain">
-          <div class="terrain-grid" id="terrain-tiles" aria-hidden="true"></div>
+          <div class="map-objects" id="map-objects" aria-hidden="true"></div>
           <div id="cities"></div>
           <div id="marches"></div>
         </div>
@@ -105,6 +105,8 @@
   </main>
   <script src="battle-engine.js"></script>
   <script src="city-assets.js"></script>
+  <script src="map-assets.js"></script>
+  <script src="map-definition.js"></script>
   <script src="world-state.js"></script>
   <script src="script.js"></script>
 </body>

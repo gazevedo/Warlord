@@ -4,8 +4,6 @@ const {
   DEFAULT_BOT_COUNT,
   PLAYER_ID,
   STARTING_CITIES_PER_PLAYER,
-  TERRAIN_TILE,
-  createTerrainTiles,
   createInitialWorld,
   moveCapital
 } = require('../world-state.js');
@@ -39,18 +37,14 @@ test('expande o mapa quando novos participantes entram', () => {
   assert.equal(expanded.cities.filter(({ ownerId }) => ownerId !== null).length, 21 * STARTING_CITIES_PER_PLAYER);
 });
 
-test('monta a base do mapa com uma malha expansível do terreno de grama', () => {
+test('monta uma definição de mapa expansível com os quatro biomas', () => {
   const initial = createInitialWorld({ botCount: 6 });
   const expanded = createInitialWorld({ botCount: 20 });
-  assert.ok(initial.terrain.tiles.length > 0);
-  assert.ok(expanded.terrain.tiles.length > initial.terrain.tiles.length);
-  assert.equal(initial.terrain.tiles.every(({ asset }) => asset === TERRAIN_TILE.asset), true);
-
-  const custom = createTerrainTiles({ width: 1_600, height: 1_200 });
-  assert.ok(Math.max(...custom.map(({ x, width }) => x + width)) >= 1_600);
-  assert.ok(Math.max(...custom.map(({ y, height }) => y + height)) >= 1_200);
-  assert.ok(Math.min(...custom.map(({ x }) => x)) <= 0);
-  assert.ok(Math.min(...custom.map(({ y }) => y)) <= 0);
+  const initialTerrain = initial.map.objects.filter(({ type }) => type === 'terrain');
+  const expandedTerrain = expanded.map.objects.filter(({ type }) => type === 'terrain');
+  assert.ok(initialTerrain.length > 0);
+  assert.ok(expandedTerrain.length > initialTerrain.length);
+  assert.deepEqual(new Set(initialTerrain.map(({ biome }) => biome)), new Set(['grass', 'water', 'sand', 'snow']));
 });
 
 test('transfere o centro somente para outra cidade do proprietário', () => {

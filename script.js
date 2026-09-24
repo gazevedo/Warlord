@@ -7,7 +7,7 @@ const world = document.querySelector('#world');
 const viewport = document.querySelector('#world-viewport');
 const cityLayer = document.querySelector('#cities');
 const marchLayer = document.querySelector('#marches');
-const terrainLayer = document.querySelector('#terrain-tiles');
+const mapObjectLayer = document.querySelector('#map-objects');
 const panel = document.querySelector('#city-panel');
 const toast = document.querySelector('#toast');
 const hint = document.querySelector('#map-hint');
@@ -15,7 +15,7 @@ const attackDialog = document.querySelector('#attack-dialog');
 const reportDialog = document.querySelector('#battle-report');
 world.style.setProperty('--world-width', `${gameWorld.dimensions.width}px`);
 world.style.setProperty('--world-height', `${gameWorld.dimensions.height}px`);
-terrainLayer.innerHTML = gameWorld.terrain.tiles.map((tile) => `<img src="${tile.asset}" alt="" style="left:${tile.x}px;top:${tile.y}px;width:${tile.width}px;height:${tile.height}px">`).join('');
+mapObjectLayer.innerHTML = gameWorld.map.objects.map((object) => `<img class="map-object map-object-${object.type}" src="${object.asset}" alt="" data-map-object="${object.id}" style="left:${object.x}px;top:${object.y}px;width:${object.width}px;height:${object.height}px;z-index:${object.zIndex}">`).join('');
 
 const initialView = () => ({
   x: 0,
@@ -30,9 +30,10 @@ let marches = [];
 let toastTimer;
 
 function castleMarkup(city) {
-  const asset = WarlordCityAssets.cityAssetFor(city.level, city.theme);
+  const levelAsset = WarlordCityAssets.cityAssetFor(city.level, city.theme);
+  const asset = WarlordMapAssets.getCityMapAsset(city, levelAsset);
   return `
-    <button class="city tone-${city.tone}${city.isCapital ? ' capital' : ''}" data-city="${city.id}" style="--x:${city.x}%;--y:${city.y}%" aria-label="${city.name}, nível ${city.level}${city.isCapital ? ', centro protegido' : ''}">
+    <button class="city tone-${city.tone}${city.isCapital ? ' capital' : ''}" data-city="${city.id}" style="--x:${city.x}%;--y:${city.y}%;z-index:${WarlordMapDefinition.LAYERS.cities + Math.floor((city.y / 100) * gameWorld.dimensions.height)}" aria-label="${city.name}, nível ${city.level}${city.isCapital ? ', centro protegido' : ''}">
       <span class="selection-ring"></span>
       ${city.isCapital ? '<span class="capital-mark" title="Centro protegido">♛</span>' : ''}
       <span class="city-label"><strong>${city.name}</strong><small><b>${city.level}</b> ${city.owner}</small></span>
@@ -58,7 +59,7 @@ function renderMarches(now = Date.now()) {
     const length = WarlordBattle.distanceBetweenCities(from, to);
     const hostile = march.playerId !== PLAYER_ID;
     return `<div class="march ${hostile ? 'hostile' : 'friendly'}" style="--from-x:${from.x}%;--from-y:${from.y}%;--army-x:${x}%;--army-y:${y}%;--route-length:${length}%;--route-angle:${angle}deg" aria-label="${hostile ? 'Ataque inimigo' : 'Exército aliado'}, ${formatTroops(march.troops)} tropas, ${formatDuration(march.arrivalAt - now)} restantes">
-      <span class="march-path"></span><span class="army"><img src="assets/map/painted/army_${hostile ? 'red' : 'blue'}.webp" alt=""><i>${formatTroops(march.troops)}</i></span><span class="march-time">${formatDuration(march.arrivalAt - now)}</span>
+      <span class="march-path"></span><span class="army"><img src="${hostile ? WarlordMapAssets.PAINTED_ASSETS.armyRed : WarlordMapAssets.PAINTED_ASSETS.armyBlue}" alt=""><i>${formatTroops(march.troops)}</i></span><span class="march-time">${formatDuration(march.arrivalAt - now)}</span>
     </div>`;
   }).join('');
 }

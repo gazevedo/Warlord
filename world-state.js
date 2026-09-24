@@ -1,9 +1,10 @@
 (function initWorldState(root, factory) {
-  const api = factory();
+  const mapDefinition = typeof module === 'object' && module.exports ? require('./map-definition.js') : root.WarlordMapDefinition;
+  const api = factory(mapDefinition);
 
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.WarlordWorld = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function createWorldState() {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function createWorldState(MapDefinition) {
   const PLAYER_ID = 'player';
   const STARTING_CITIES_PER_PLAYER = 5;
   const DEFAULT_BOT_COUNT = 6;
@@ -12,7 +13,6 @@
   const CLUSTER_HEIGHT = 620;
   const MAP_PADDING = 360;
   const MINIMUM_COLUMNS = 3;
-  const TERRAIN_TILE = Object.freeze({ asset: 'assets/map/terrain/terrain_grass_01.png', width: 720, height: 360, horizontalStep: 680, verticalStep: 170 });
 
   const BOT_PROFILES = Object.freeze([
     { id: 'bot-north', name: 'Astrid', alliance: 'Clã do Norte', tone: 'red' },
@@ -56,27 +56,6 @@
 
   function percent(value, total) {
     return Number(((value / total) * 100).toFixed(3));
-  }
-
-  function createTerrainTiles(dimensions, tile = TERRAIN_TILE) {
-    const rows = Math.ceil(dimensions.height / tile.verticalStep) + 2;
-    const columns = Math.ceil(dimensions.width / tile.horizontalStep) + 2;
-    const tiles = [];
-
-    for (let row = 0; row < rows; row += 1) {
-      const offsetX = row % 2 === 0 ? 0 : -(tile.horizontalStep / 2);
-      for (let column = -1; column < columns; column += 1) {
-        tiles.push({
-          id: `terrain-${row}-${column + 1}`,
-          asset: tile.asset,
-          x: offsetX + (column * tile.horizontalStep),
-          y: (row * tile.verticalStep) - tile.verticalStep,
-          width: tile.width,
-          height: tile.height
-        });
-      }
-    }
-    return tiles;
   }
 
   function createOwnedCities(players, dimensions) {
@@ -155,8 +134,8 @@
     const players = createPlayers(botCount);
     const dimensions = mapDimensions(players.length);
     const cities = [...createOwnedCities(players, dimensions), ...createNeutralCities(players.length, dimensions)];
-    const terrain = { type: 'grass', tiles: createTerrainTiles(dimensions) };
-    return { players, cities, dimensions, terrain };
+    const map = MapDefinition.createMapDefinition({ ...dimensions, cities });
+    return { players, cities, dimensions, map };
   }
 
   function moveCapital(cities, playerId, destinationId) {
@@ -173,10 +152,8 @@
     STARTING_CITIES_PER_PLAYER,
     DEFAULT_BOT_COUNT,
     NEUTRAL_CITIES_PER_PLAYER,
-    TERRAIN_TILE,
     createPlayers,
     mapDimensions,
-    createTerrainTiles,
     createInitialWorld,
     moveCapital
   });
