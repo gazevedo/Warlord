@@ -12,21 +12,17 @@ test('gera biomas por ruído coerente com a seed fixa', () => {
   assert.equal(selectBiome({ elevation: 0.8, moisture: 0.8, temperature: 0.8 }), 'grass');
 });
 
-test('cria uma faixa de mistura gradual entre biomas', () => {
-  let transition;
-  for (let x = 0; x <= 2_460 && !transition; x += 4) {
-    for (let y = 0; y <= 2_220; y += 4) {
-      const blend = terrainBlendAt(x, y, 2_460, 2_220);
+test('cria faixas graduais para todas as transições de terreno', () => {
+  const transitions = new Set();
+  for (let x = 0; x <= 1_200; x += 3) {
+    for (let y = 0; y <= 900; y += 3) {
+      const blend = terrainBlendAt(x, y, 1_200, 900);
       if (blend.secondary && blend.blendFactor > 0 && blend.blendFactor < 1) {
-        transition = blend;
-        break;
+        transitions.add([blend.primary, blend.secondary].sort().join('-'));
       }
     }
   }
-  assert.ok(transition);
-  assert.notEqual(transition.primary, transition.secondary);
-  assert.ok(['grass', 'sand', 'snow', 'water'].includes(transition.primary));
-  assert.ok(['grass', 'sand', 'snow', 'water'].includes(transition.secondary));
+  ['grass-sand', 'grass-snow', 'sand-water', 'snow-water', 'grass-water'].forEach((pair) => assert.equal(transitions.has(pair), true, pair));
 });
 
 test('a seed fixa produz a mesma definição e outra seed altera a composição', () => {

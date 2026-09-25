@@ -60,12 +60,18 @@
     const riverCenter = 0.54 + (Math.sin((normalizedY * Math.PI * 2) + (terrainNoise * 1.8)) * 0.055);
     const riverDistance = Math.abs(normalizedX - riverCenter);
     const lakeDistance = Math.hypot(normalizedX - 0.27, normalizedY - 0.7);
+    const coldLakeDistance = Math.hypot(normalizedX - 0.84, normalizedY - 0.22);
     const riverDepression = Math.max(0, 1 - (riverDistance / 0.075)) * 0.48;
     const lakeDepression = Math.max(0, 1 - (lakeDistance / 0.14)) * 0.5;
-    const elevation = 0.54 + ((terrainNoise - 0.5) * 0.34) - Math.max(riverDepression, lakeDepression);
+    const coldLakeDepression = Math.max(0, 1 - (coldLakeDistance / 0.1)) * 0.46;
+    const elevation = 0.54 + ((terrainNoise - 0.5) * 0.34) - Math.max(riverDepression, lakeDepression, coldLakeDepression);
     const temperature = 0.84 - (normalizedX * 0.64) - (normalizedY * 0.05) + ((climateNoise - 0.5) * 0.16);
-    const shore = elevation < 0.34;
-    const moisture = shore ? 0.18 : 0.38 + (climateNoise * 0.42);
+    const shoreInfluence = Math.max(0, Math.min(1, (0.38 - elevation) / 0.13));
+    const inlandMoisture = 0.38 + (climateNoise * 0.42);
+    const wetShoreNoise = coherentNoise((normalizedX * 8) + 31, (normalizedY * 8) - 23, seed + 911);
+    const wetShorePocket = Math.max(0, wetShoreNoise - 0.68) * 1.45;
+    const shoreMoisture = 0.1 + (climateNoise * 0.18) + wetShorePocket;
+    const moisture = inlandMoisture + ((shoreMoisture - inlandMoisture) * shoreInfluence);
     return Object.freeze({ elevation, moisture, temperature });
   }
 
