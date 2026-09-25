@@ -8,6 +8,7 @@ const viewport = document.querySelector('#world-viewport');
 const cityLayer = document.querySelector('#cities');
 const marchLayer = document.querySelector('#marches');
 const mapObjectLayer = document.querySelector('#map-objects');
+const terrainCanvas = document.querySelector('#terrain-canvas');
 const panel = document.querySelector('#city-panel');
 const toast = document.querySelector('#toast');
 const hint = document.querySelector('#map-hint');
@@ -16,6 +17,7 @@ const reportDialog = document.querySelector('#battle-report');
 world.style.setProperty('--world-width', `${gameWorld.dimensions.width}px`);
 world.style.setProperty('--world-height', `${gameWorld.dimensions.height}px`);
 mapObjectLayer.innerHTML = gameWorld.map.objects.map((object) => `<img class="map-object map-object-${object.type}" src="${object.asset}" alt="" data-map-object="${object.id}" style="left:${object.x}px;top:${object.y}px;width:${object.width}px;height:${object.height}px;z-index:${object.zIndex}">`).join('');
+WarlordTerrainRenderer.renderContinuousTerrain(terrainCanvas, gameWorld.map);
 
 const initialView = () => ({
   x: 0,

@@ -8,6 +8,8 @@
   const TILE = Object.freeze({ width: 480, height: 240, horizontalStep: 450, verticalStep: 112 });
   const LAYERS = Object.freeze({ terrain: 0, waterAndRoads: 1_000, lakes: 2_000, scenery: 3_000, cities: 10_000, armies: 20_000, effects: 30_000 });
   const BUILDABLE_TERRAINS = Object.freeze(['grass', 'sand', 'snow']);
+  const LOGICAL_CELL_SIZE = 180;
+  const MOVEMENT_COST = Object.freeze({ grass: 1, sand: 1.35, snow: 1.6, water: Infinity });
 
   function seededRandom(seed) {
     let state = seed >>> 0;
@@ -31,20 +33,19 @@
     return 'grass';
   }
 
-  function createTerrainObjects(width, height) {
-    const rows = Math.ceil(height / TILE.verticalStep) + 2;
-    const columns = Math.ceil(width / TILE.horizontalStep) + 2;
-    const objects = [];
+  function createLogicalCells(width, height) {
+    const rows = Math.ceil(height / LOGICAL_CELL_SIZE);
+    const columns = Math.ceil(width / LOGICAL_CELL_SIZE);
+    const cells = [];
     for (let row = 0; row < rows; row += 1) {
-      const offsetX = row % 2 === 0 ? 0 : -(TILE.horizontalStep / 2);
-      for (let column = -1; column < columns; column += 1) {
-        const x = offsetX + (column * TILE.horizontalStep);
-        const y = (row * TILE.verticalStep) - TILE.verticalStep;
-        const biome = terrainBiomeAt(x + (TILE.width / 2), y + (TILE.height / 2), width, height);
-        objects.push({ id: `terrain-${row}-${column + 1}`, type: 'terrain', asset: MapAssets.TERRAIN_ASSETS[biome], x, y, width: TILE.width, height: TILE.height, zIndex: LAYERS.terrain + Math.floor(y), biome });
+      for (let column = 0; column < columns; column += 1) {
+        const x = Math.min(width, (column + 0.5) * LOGICAL_CELL_SIZE);
+        const y = Math.min(height, (row + 0.5) * LOGICAL_CELL_SIZE);
+        const biome = terrainBiomeAt(x, y, width, height);
+        cells.push(Object.freeze({ row, column, biome, movementCost: MOVEMENT_COST[biome], blocked: biome === 'water' }));
       }
     }
-    return objects;
+    return Object.freeze(cells);
   }
 
   function rectanglesOverlap(first, second, padding = 0) {
@@ -165,10 +166,10 @@
   }
 
   function createMapDefinition({ width, height, cities = [], seed = DEFAULT_MAP_SEED }) {
-    const terrain = createTerrainObjects(width, height);
+    const logicalCells = createLogicalCells(width, height);
     const scenery = createSceneryObjects(width, height, cities, seed);
-    return { width, height, seed, objects: [...terrain, ...scenery] };
+    return { width, height, seed, logicalCells, objects: scenery };
   }
 
-  return Object.freeze({ DEFAULT_MAP_SEED, TILE, LAYERS, BUILDABLE_TERRAINS, seededRandom, terrainBiomeAt, rectanglesOverlap, isBuildableCityPosition, placeCitiesOnBuildableTerrain, createTerrainObjects, createSceneryObjects, createMapDefinition });
+  return Object.freeze({ DEFAULT_MAP_SEED, TILE, LAYERS, BUILDABLE_TERRAINS, LOGICAL_CELL_SIZE, MOVEMENT_COST, seededRandom, terrainBiomeAt, rectanglesOverlap, isBuildableCityPosition, placeCitiesOnBuildableTerrain, createLogicalCells, createSceneryObjects, createMapDefinition });
 });

@@ -16,6 +16,7 @@
       <div class="clouds" aria-hidden="true"><img src="assets/painted/cloud_01.webp" alt=""><img src="assets/painted/cloud_02.webp" alt=""></div>
       <div class="world" id="world">
         <div class="terrain">
+          <canvas class="terrain-canvas" id="terrain-canvas" aria-hidden="true"></canvas>
           <div class="map-objects" id="map-objects" aria-hidden="true"></div>
           <div id="cities"></div>
           <div id="marches"></div>
@@ -107,6 +108,7 @@
   <script src="city-assets.js"></script>
   <script src="map-assets.js"></script>
   <script src="map-definition.js"></script>
+  <script src="terrain-renderer.js"></script>
   <script src="world-state.js"></script>
   <script src="script.js"></script>
 </body>

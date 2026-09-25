@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { BUILDABLE_TERRAINS, DEFAULT_MAP_SEED, LAYERS, createMapDefinition, isBuildableCityPosition, placeCitiesOnBuildableTerrain, rectanglesOverlap, terrainBiomeAt } = require('../map-definition.js');
+const { BUILDABLE_TERRAINS, DEFAULT_MAP_SEED, LAYERS, MOVEMENT_COST, createMapDefinition, isBuildableCityPosition, placeCitiesOnBuildableTerrain, rectanglesOverlap, terrainBiomeAt } = require('../map-definition.js');
 
 test('a seed fixa produz a mesma definição e outra seed altera a composição', () => {
   const input = { width: 2_460, height: 2_220, cities: [] };
@@ -9,6 +9,16 @@ test('a seed fixa produz a mesma definição e outra seed altera a composição'
   const changed = createMapDefinition({ ...input, seed: DEFAULT_MAP_SEED + 1 });
   assert.deepEqual(first, second);
   assert.notDeepEqual(first.objects.filter(({ type }) => type !== 'terrain'), changed.objects.filter(({ type }) => type !== 'terrain'));
+});
+
+test('mantém a grade lógica fora da lista de objetos visuais', () => {
+  const map = createMapDefinition({ width: 2_460, height: 2_220, cities: [] });
+  assert.ok(map.logicalCells.length > 0);
+  assert.equal(map.objects.some(({ type }) => type === 'terrain'), false);
+  map.logicalCells.forEach((cell) => {
+    assert.equal(cell.movementCost, MOVEMENT_COST[cell.biome]);
+    assert.equal(cell.blocked, cell.biome === 'water');
+  });
 });
 
 test('objetos respeitam camadas, profundidade vertical e colisão entre grandes elementos', () => {

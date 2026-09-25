@@ -64,11 +64,11 @@ test('expande o mapa quando novos participantes entram', () => {
 test('monta uma definição de mapa expansível com os quatro biomas', () => {
   const initial = createInitialWorld({ botCount: 6 });
   const expanded = createInitialWorld({ botCount: 20 });
-  const initialTerrain = initial.map.objects.filter(({ type }) => type === 'terrain');
-  const expandedTerrain = expanded.map.objects.filter(({ type }) => type === 'terrain');
-  assert.ok(initialTerrain.length > 0);
-  assert.ok(expandedTerrain.length > initialTerrain.length);
-  assert.deepEqual(new Set(initialTerrain.map(({ biome }) => biome)), new Set(['grass', 'water', 'sand', 'snow']));
+  assert.ok(initial.map.logicalCells.length > 0);
+  assert.ok(expanded.map.logicalCells.length > initial.map.logicalCells.length);
+  assert.deepEqual(new Set(initial.map.logicalCells.map(({ biome }) => biome)), new Set(['grass', 'water', 'sand', 'snow']));
+  assert.equal(initial.map.objects.some(({ type }) => type === 'terrain'), false);
+  assert.equal(initial.map.logicalCells.every(({ row, column, movementCost, blocked }) => Number.isInteger(row) && Number.isInteger(column) && typeof movementCost === 'number' && typeof blocked === 'boolean'), true);
 });
 
 test('transfere o centro somente para outra cidade do proprietário', () => {
