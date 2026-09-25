@@ -1,6 +1,16 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { BUILDABLE_TERRAINS, DEFAULT_MAP_SEED, LAYERS, MOVEMENT_COST, createMapDefinition, isBuildableCityPosition, placeCitiesOnBuildableTerrain, rectanglesOverlap, terrainBiomeAt } = require('../map-definition.js');
+const { BUILDABLE_TERRAINS, DEFAULT_MAP_SEED, LAYERS, MAP_SEED, MOVEMENT_COST, biomeSampleAt, createMapDefinition, isBuildableCityPosition, placeCitiesOnBuildableTerrain, rectanglesOverlap, selectBiome, terrainBiomeAt } = require('../map-definition.js');
+
+test('gera biomas por ruído coerente com a seed fixa', () => {
+  assert.equal(MAP_SEED, 20260925);
+  assert.equal(DEFAULT_MAP_SEED, MAP_SEED);
+  assert.deepEqual(biomeSampleAt(320, 640, 2_460, 2_220), biomeSampleAt(320, 640, 2_460, 2_220));
+  assert.equal(selectBiome({ elevation: 0.2, moisture: 0.8, temperature: 0.8 }), 'water');
+  assert.equal(selectBiome({ elevation: 0.8, moisture: 0.8, temperature: 0.2 }), 'snow');
+  assert.equal(selectBiome({ elevation: 0.8, moisture: 0.2, temperature: 0.8 }), 'sand');
+  assert.equal(selectBiome({ elevation: 0.8, moisture: 0.8, temperature: 0.8 }), 'grass');
+});
 
 test('a seed fixa produz a mesma definição e outra seed altera a composição', () => {
   const input = { width: 2_460, height: 2_220, cities: [] };
@@ -18,6 +28,16 @@ test('mantém a grade lógica fora da lista de objetos visuais', () => {
   map.logicalCells.forEach((cell) => {
     assert.equal(cell.movementCost, MOVEMENT_COST[cell.biome]);
     assert.equal(cell.blocked, cell.biome === 'water');
+  });
+  const cells = new Map(map.logicalCells.map((cell) => [`${cell.row}:${cell.column}`, cell]));
+  map.logicalCells.forEach((cell) => {
+    const neighbors = [];
+    for (let rowOffset = -1; rowOffset <= 1; rowOffset += 1) {
+      for (let columnOffset = -1; columnOffset <= 1; columnOffset += 1) {
+        if (rowOffset || columnOffset) neighbors.push(cells.get(`${cell.row + rowOffset}:${cell.column + columnOffset}`));
+      }
+    }
+    assert.equal(neighbors.filter(Boolean).some((neighbor) => neighbor.biome === cell.biome), true);
   });
 });
 

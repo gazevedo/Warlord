@@ -4,7 +4,8 @@
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (root) root.WarlordMapDefinition = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function createMapDefinitionApi(MapAssets) {
-  const DEFAULT_MAP_SEED = 20260924;
+  const MAP_SEED = 20260925;
+  const DEFAULT_MAP_SEED = MAP_SEED;
   const TILE = Object.freeze({ width: 480, height: 240, horizontalStep: 450, verticalStep: 112 });
   const LAYERS = Object.freeze({ terrain: 0, waterAndRoads: 1_000, lakes: 2_000, scenery: 3_000, cities: 10_000, armies: 20_000, effects: 30_000 });
   const BUILDABLE_TERRAINS = Object.freeze(['grass', 'sand', 'snow']);
@@ -21,16 +22,62 @@
     };
   }
 
-  function terrainBiomeAt(x, y, width, height) {
+  function noiseHash(x, y, seed = MAP_SEED) {
+    let value = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(seed, 982451653);
+    value = Math.imul(value ^ (value >>> 13), 1274126177);
+    return ((value ^ (value >>> 16)) >>> 0) / 4294967295;
+  }
+
+  function coherentNoise(x, y, seed = MAP_SEED) {
+    const left = Math.floor(x);
+    const top = Math.floor(y);
+    const smoothX = (x - left) ** 2 * (3 - (2 * (x - left)));
+    const smoothY = (y - top) ** 2 * (3 - (2 * (y - top)));
+    const north = noiseHash(left, top, seed) + ((noiseHash(left + 1, top, seed) - noiseHash(left, top, seed)) * smoothX);
+    const south = noiseHash(left, top + 1, seed) + ((noiseHash(left + 1, top + 1, seed) - noiseHash(left, top + 1, seed)) * smoothX);
+    return north + ((south - north) * smoothY);
+  }
+
+  function fractalNoise(x, y, seed = MAP_SEED) {
+    let value = 0;
+    let amplitude = 0.58;
+    let totalAmplitude = 0;
+    for (let octave = 0; octave < 4; octave += 1) {
+      value += coherentNoise(x, y, seed + (octave * 1013)) * amplitude;
+      totalAmplitude += amplitude;
+      x *= 2;
+      y *= 2;
+      amplitude *= 0.5;
+    }
+    return value / totalAmplitude;
+  }
+
+  function biomeSampleAt(x, y, width, height, seed = MAP_SEED) {
     const normalizedX = x / width;
     const normalizedY = y / height;
-    const riverCenter = 0.54 + (Math.sin(normalizedY * Math.PI * 2) * 0.055);
+    const terrainNoise = fractalNoise(normalizedX * 4.2, normalizedY * 4.2, seed);
+    const climateNoise = fractalNoise((normalizedX * 3.1) + 17, (normalizedY * 3.1) - 9, seed + 71);
+    const riverCenter = 0.54 + (Math.sin((normalizedY * Math.PI * 2) + (terrainNoise * 1.8)) * 0.055);
     const riverDistance = Math.abs(normalizedX - riverCenter);
     const lakeDistance = Math.hypot(normalizedX - 0.27, normalizedY - 0.7);
-    if (riverDistance < 0.04 || lakeDistance < 0.08) return 'water';
-    if (riverDistance < 0.085 || lakeDistance < 0.13) return 'sand';
-    if (normalizedX > 0.64 && normalizedY < 0.48) return 'snow';
+    const riverDepression = Math.max(0, 1 - (riverDistance / 0.075)) * 0.48;
+    const lakeDepression = Math.max(0, 1 - (lakeDistance / 0.14)) * 0.5;
+    const elevation = 0.54 + ((terrainNoise - 0.5) * 0.34) - Math.max(riverDepression, lakeDepression);
+    const temperature = 0.84 - (normalizedX * 0.64) - (normalizedY * 0.05) + ((climateNoise - 0.5) * 0.16);
+    const shore = elevation < 0.34;
+    const moisture = shore ? 0.18 : 0.38 + (climateNoise * 0.42);
+    return Object.freeze({ elevation, moisture, temperature });
+  }
+
+  function selectBiome(sample) {
+    if (sample.elevation < 0.25) return 'water';
+    if (sample.temperature < 0.3) return 'snow';
+    if (sample.moisture < 0.25) return 'sand';
     return 'grass';
+  }
+
+  function terrainBiomeAt(x, y, width, height, seed = MAP_SEED) {
+    return selectBiome(biomeSampleAt(x, y, width, height, seed));
   }
 
   function createLogicalCells(width, height) {
@@ -45,7 +92,26 @@
         cells.push(Object.freeze({ row, column, biome, movementCost: MOVEMENT_COST[biome], blocked: biome === 'water' }));
       }
     }
-    return Object.freeze(cells);
+    let smoothed = cells;
+    for (let pass = 0; pass < 2; pass += 1) {
+      const byCoordinate = new Map(smoothed.map((cell) => [`${cell.row}:${cell.column}`, cell]));
+      smoothed = smoothed.map((cell) => {
+        const neighbors = [];
+        for (let rowOffset = -1; rowOffset <= 1; rowOffset += 1) {
+          for (let columnOffset = -1; columnOffset <= 1; columnOffset += 1) {
+            if (rowOffset === 0 && columnOffset === 0) continue;
+            const neighbor = byCoordinate.get(`${cell.row + rowOffset}:${cell.column + columnOffset}`);
+            if (neighbor) neighbors.push(neighbor);
+          }
+        }
+        const counts = neighbors.reduce((result, neighbor) => ({ ...result, [neighbor.biome]: (result[neighbor.biome] || 0) + 1 }), {});
+        const [majority, count] = Object.entries(counts).sort((first, second) => second[1] - first[1])[0] || [cell.biome, 0];
+        const isolated = !neighbors.some((neighbor) => neighbor.biome === cell.biome);
+        const biome = count >= 5 || isolated ? majority : cell.biome;
+        return Object.freeze({ ...cell, biome, movementCost: MOVEMENT_COST[biome], blocked: biome === 'water' });
+      });
+    }
+    return Object.freeze(smoothed);
   }
 
   function rectanglesOverlap(first, second, padding = 0) {
@@ -171,5 +237,5 @@
     return { width, height, seed, logicalCells, objects: scenery };
   }
 
-  return Object.freeze({ DEFAULT_MAP_SEED, TILE, LAYERS, BUILDABLE_TERRAINS, LOGICAL_CELL_SIZE, MOVEMENT_COST, seededRandom, terrainBiomeAt, rectanglesOverlap, isBuildableCityPosition, placeCitiesOnBuildableTerrain, createLogicalCells, createSceneryObjects, createMapDefinition });
+  return Object.freeze({ MAP_SEED, DEFAULT_MAP_SEED, TILE, LAYERS, BUILDABLE_TERRAINS, LOGICAL_CELL_SIZE, MOVEMENT_COST, seededRandom, coherentNoise, fractalNoise, biomeSampleAt, selectBiome, terrainBiomeAt, rectanglesOverlap, isBuildableCityPosition, placeCitiesOnBuildableTerrain, createLogicalCells, createSceneryObjects, createMapDefinition });
 });
