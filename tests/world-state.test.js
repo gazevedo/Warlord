@@ -2,11 +2,22 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
   DEFAULT_BOT_COUNT,
+  MAP_AREA_MULTIPLIER,
   PLAYER_ID,
   STARTING_CITIES_PER_PLAYER,
   createInitialWorld,
   moveCapital
 } = require('../world-state.js');
+
+test('amplia a área do mapa em dez vezes sem transformar 10x em cada eixo', () => {
+  const dimensions = createInitialWorld({ botCount: 6 }).dimensions;
+  const previousWidth = (3 * 700) + 360;
+  const previousHeight = (3 * 620) + 360;
+  const areaRatio = (dimensions.width * dimensions.height) / (previousWidth * previousHeight);
+
+  assert.equal(MAP_AREA_MULTIPLIER, 10);
+  assert.ok(Math.abs(areaRatio - MAP_AREA_MULTIPLIER) < 0.01);
+});
 
 test('inicia o jogador e seis bots com cinco vilas de nível 1', () => {
   const world = createInitialWorld();

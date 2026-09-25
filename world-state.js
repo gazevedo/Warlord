@@ -13,6 +13,8 @@
   const CLUSTER_HEIGHT = 620;
   const MAP_PADDING = 360;
   const MINIMUM_COLUMNS = 3;
+  const MAP_AREA_MULTIPLIER = 10;
+  const MAP_LINEAR_SCALE = Math.sqrt(MAP_AREA_MULTIPLIER);
 
   const BOT_PROFILES = Object.freeze([
     { id: 'bot-north', name: 'Astrid', alliance: 'Clã do Norte', tone: 'red' },
@@ -49,8 +51,8 @@
     return {
       columns,
       rows,
-      width: (columns * CLUSTER_WIDTH) + MAP_PADDING,
-      height: (rows * CLUSTER_HEIGHT) + MAP_PADDING
+      width: Math.round(((columns * CLUSTER_WIDTH) + MAP_PADDING) * MAP_LINEAR_SCALE),
+      height: Math.round(((rows * CLUSTER_HEIGHT) + MAP_PADDING) * MAP_LINEAR_SCALE)
     };
   }
 
@@ -65,8 +67,8 @@
       const slot = playerIndex === 0 ? centerSlot : availableSlots[playerIndex - 1];
       const column = slot % dimensions.columns;
       const row = Math.floor(slot / dimensions.columns);
-      const centerX = (MAP_PADDING / 2) + (column * CLUSTER_WIDTH) + (CLUSTER_WIDTH / 2);
-      const centerY = (MAP_PADDING / 2) + (row * CLUSTER_HEIGHT) + (CLUSTER_HEIGHT / 2);
+      const centerX = ((MAP_PADDING / 2) + (column * CLUSTER_WIDTH) + (CLUSTER_WIDTH / 2)) * MAP_LINEAR_SCALE;
+      const centerY = ((MAP_PADDING / 2) + (row * CLUSTER_HEIGHT) + (CLUSTER_HEIGHT / 2)) * MAP_LINEAR_SCALE;
       const capitalName = CAPITAL_NAMES[playerIndex % CAPITAL_NAMES.length];
 
       return CITY_OFFSETS.map((offset, cityIndex) => ({
@@ -152,6 +154,7 @@
     STARTING_CITIES_PER_PLAYER,
     DEFAULT_BOT_COUNT,
     NEUTRAL_CITIES_PER_PLAYER,
+    MAP_AREA_MULTIPLIER,
     createPlayers,
     mapDimensions,
     createInitialWorld,
