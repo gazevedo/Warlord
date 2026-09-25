@@ -18,20 +18,13 @@
 
   const BIOME_BASE_COLORS = Object.freeze({ grass: '#6f9b61', sand: '#d7bd72', snow: '#c8d5d1', water: '#4389ad' });
 
-  function tileTexture(context, image, width, height, biome) {
-    const source = { x: image.width * 0.31, y: image.height * 0.28, width: image.width * 0.38, height: image.height * 0.44 };
-    const tileWidth = 360;
-    const tileHeight = 190;
+  function paintTextureSurface(context, image, width, height, biome) {
+    const source = { x: image.width * 0.34, y: image.height * 0.22, width: image.width * 0.32, height: image.height * 0.56 };
     context.fillStyle = BIOME_BASE_COLORS[biome];
     context.fillRect(0, 0, width, height);
     context.save();
-    context.globalAlpha = 0.32;
-    for (let y = -tileHeight; y < height + tileHeight; y += tileHeight - 1) {
-      const offset = (Math.floor(y / tileHeight) % 2) * (tileWidth / 2);
-      for (let x = -tileWidth; x < width + tileWidth; x += tileWidth - 1) {
-        context.drawImage(image, source.x, source.y, source.width, source.height, x + offset, y, tileWidth + 2, tileHeight + 2);
-      }
-    }
+    context.globalAlpha = 0.28;
+    context.drawImage(image, source.x, source.y, source.width, source.height, 0, 0, width, height);
     context.restore();
   }
 
@@ -57,7 +50,7 @@
     layer.width = width;
     layer.height = height;
     const layerContext = layer.getContext('2d');
-    tileTexture(layerContext, image, width, height, biome);
+    paintTextureSurface(layerContext, image, width, height, biome);
     layerContext.globalCompositeOperation = 'destination-in';
     layerContext.filter = `blur(${blur}px)`;
     biomeMask(layerContext, biome, width, height);
@@ -72,7 +65,7 @@
     const context = canvas.getContext('2d');
     const entries = await Promise.all(Object.entries(MapAssets.TERRAIN_ASSETS).map(async ([biome, source]) => [biome, await loadImage(source)]));
     const images = Object.fromEntries(entries);
-    tileTexture(context, images.grass, canvas.width, canvas.height, 'grass');
+    paintTextureSurface(context, images.grass, canvas.width, canvas.height, 'grass');
     const blur = Math.max(12, canvas.width * 0.008);
     paintBiome(context, images.snow, 'snow', canvas.width, canvas.height, blur);
     paintBiome(context, images.sand, 'sand', canvas.width, canvas.height, blur);
