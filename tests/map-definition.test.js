@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { BUILDABLE_TERRAINS, DEFAULT_MAP_SEED, LAYERS, MAP_SEED, MOVEMENT_COST, biomeSampleAt, createMapDefinition, isBuildableCityPosition, placeCitiesOnBuildableTerrain, rectanglesOverlap, selectBiome, terrainBiomeAt } = require('../map-definition.js');
+const { BUILDABLE_TERRAINS, DEFAULT_MAP_SEED, LAYERS, MAP_SEED, MOVEMENT_COST, biomeSampleAt, createMapDefinition, isBuildableCityPosition, placeCitiesOnBuildableTerrain, rectanglesOverlap, selectBiome, terrainBlendAt, terrainBiomeAt } = require('../map-definition.js');
 
 test('gera biomas por ruído coerente com a seed fixa', () => {
   assert.equal(MAP_SEED, 20260925);
@@ -10,6 +10,23 @@ test('gera biomas por ruído coerente com a seed fixa', () => {
   assert.equal(selectBiome({ elevation: 0.8, moisture: 0.8, temperature: 0.2 }), 'snow');
   assert.equal(selectBiome({ elevation: 0.8, moisture: 0.2, temperature: 0.8 }), 'sand');
   assert.equal(selectBiome({ elevation: 0.8, moisture: 0.8, temperature: 0.8 }), 'grass');
+});
+
+test('cria uma faixa de mistura gradual entre biomas', () => {
+  let transition;
+  for (let x = 0; x <= 2_460 && !transition; x += 4) {
+    for (let y = 0; y <= 2_220; y += 4) {
+      const blend = terrainBlendAt(x, y, 2_460, 2_220);
+      if (blend.secondary && blend.blendFactor > 0 && blend.blendFactor < 1) {
+        transition = blend;
+        break;
+      }
+    }
+  }
+  assert.ok(transition);
+  assert.notEqual(transition.primary, transition.secondary);
+  assert.ok(['grass', 'sand', 'snow', 'water'].includes(transition.primary));
+  assert.ok(['grass', 'sand', 'snow', 'water'].includes(transition.secondary));
 });
 
 test('a seed fixa produz a mesma definição e outra seed altera a composição', () => {

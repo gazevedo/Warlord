@@ -76,6 +76,28 @@
     return 'grass';
   }
 
+  function smoothStep(value) {
+    const normalized = Math.max(0, Math.min(1, value));
+    return normalized * normalized * (3 - (2 * normalized));
+  }
+
+  function terrainBlendAt(x, y, width, height, seed = MAP_SEED) {
+    const sample = biomeSampleAt(x, y, width, height, seed);
+    const primary = selectBiome(sample);
+    const boundaries = [
+      { value: sample.elevation, threshold: 0.25, width: 0.018, lower: 'water', upper: selectBiome({ ...sample, elevation: 0.251 }) },
+      { value: sample.temperature, threshold: 0.3, width: 0.025, lower: selectBiome({ ...sample, temperature: 0.299 }), upper: selectBiome({ ...sample, temperature: 0.301 }) },
+      { value: sample.moisture, threshold: 0.25, width: 0.025, lower: selectBiome({ ...sample, moisture: 0.249 }), upper: selectBiome({ ...sample, moisture: 0.251 }) }
+    ];
+    const transition = boundaries
+      .filter(({ lower, upper, value, threshold, width: band }) => lower !== upper && (primary === lower || primary === upper) && Math.abs(value - threshold) < band)
+      .sort((first, second) => Math.abs(first.value - first.threshold) - Math.abs(second.value - second.threshold))[0];
+    if (!transition) return Object.freeze({ primary, blendFactor: 1 });
+    const secondary = primary === transition.lower ? transition.upper : transition.lower;
+    const blendFactor = smoothStep(Math.abs(transition.value - transition.threshold) / transition.width);
+    return Object.freeze({ primary, secondary, blendFactor });
+  }
+
   function terrainBiomeAt(x, y, width, height, seed = MAP_SEED) {
     return selectBiome(biomeSampleAt(x, y, width, height, seed));
   }
@@ -237,5 +259,5 @@
     return { width, height, seed, logicalCells, objects: scenery };
   }
 
-  return Object.freeze({ MAP_SEED, DEFAULT_MAP_SEED, TILE, LAYERS, BUILDABLE_TERRAINS, LOGICAL_CELL_SIZE, MOVEMENT_COST, seededRandom, coherentNoise, fractalNoise, biomeSampleAt, selectBiome, terrainBiomeAt, rectanglesOverlap, isBuildableCityPosition, placeCitiesOnBuildableTerrain, createLogicalCells, createSceneryObjects, createMapDefinition });
+  return Object.freeze({ MAP_SEED, DEFAULT_MAP_SEED, TILE, LAYERS, BUILDABLE_TERRAINS, LOGICAL_CELL_SIZE, MOVEMENT_COST, seededRandom, coherentNoise, fractalNoise, biomeSampleAt, selectBiome, terrainBlendAt, terrainBiomeAt, rectanglesOverlap, isBuildableCityPosition, placeCitiesOnBuildableTerrain, createLogicalCells, createSceneryObjects, createMapDefinition });
 });

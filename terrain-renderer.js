@@ -37,8 +37,11 @@
     const pixels = maskContext.createImageData(mask.width, mask.height);
     for (let y = 0; y < mask.height; y += 1) {
       for (let x = 0; x < mask.width; x += 1) {
-        if (MapDefinition.terrainBiomeAt(x, y, mask.width, mask.height) !== biome) continue;
-        pixels.data[((y * mask.width) + x) * 4 + 3] = 255;
+        const blend = MapDefinition.terrainBlendAt(x, y, mask.width, mask.height);
+        const touchesWater = blend.primary === 'water' || blend.secondary === 'water';
+        const participates = blend.primary === biome || blend.secondary === biome;
+        const weight = biome !== 'water' && touchesWater && participates ? 1 : blend.primary === biome ? blend.blendFactor : blend.secondary === biome ? 1 - blend.blendFactor : 0;
+        pixels.data[((y * mask.width) + x) * 4 + 3] = Math.round(weight * 255);
       }
     }
     maskContext.putImageData(pixels, 0, 0);
@@ -66,10 +69,10 @@
     const entries = await Promise.all(Object.entries(MapAssets.TERRAIN_ASSETS).map(async ([biome, source]) => [biome, await loadImage(source)]));
     const images = Object.fromEntries(entries);
     paintTextureSurface(context, images.grass, canvas.width, canvas.height, 'grass');
-    const blur = Math.max(12, canvas.width * 0.008);
+    const blur = Math.max(3, canvas.width * 0.002);
     paintBiome(context, images.snow, 'snow', canvas.width, canvas.height, blur);
     paintBiome(context, images.sand, 'sand', canvas.width, canvas.height, blur);
-    paintBiome(context, images.water, 'water', canvas.width, canvas.height, blur * 0.65);
+    paintBiome(context, images.water, 'water', canvas.width, canvas.height, blur);
   }
 
   return Object.freeze({ MAX_RENDER_WIDTH, renderContinuousTerrain });
