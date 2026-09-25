@@ -7,6 +7,7 @@
   const DEFAULT_MAP_SEED = 20260924;
   const TILE = Object.freeze({ width: 480, height: 240, horizontalStep: 450, verticalStep: 112 });
   const LAYERS = Object.freeze({ terrain: 0, waterAndRoads: 1_000, lakes: 2_000, scenery: 3_000, cities: 10_000, armies: 20_000, effects: 30_000 });
+  const BUILDABLE_TERRAINS = Object.freeze(['grass', 'sand', 'snow']);
 
   function seededRandom(seed) {
     let state = seed >>> 0;
@@ -52,6 +53,39 @@
 
   function cityBounds(cities, width, height) {
     return cities.map((city) => ({ x: ((city.x / 100) * width) - 90, y: ((city.y / 100) * height) - 75, width: 180, height: 155 }));
+  }
+
+  function isBuildableCityPosition(x, y, width, height) {
+    const samples = [
+      [0, 0], [-72, -48], [72, -48], [-72, 62], [72, 62]
+    ];
+    return samples.every(([offsetX, offsetY]) => BUILDABLE_TERRAINS.includes(terrainBiomeAt(x + offsetX, y + offsetY, width, height)));
+  }
+
+  function placeCitiesOnBuildableTerrain(cities, width, height) {
+    const occupied = [];
+    return cities.map((city) => {
+      const origin = { x: (city.x / 100) * width, y: (city.y / 100) * height };
+      let position;
+      for (let attempt = 0; attempt < 160; attempt += 1) {
+        const ring = Math.ceil(attempt / 12);
+        const angle = ((attempt % 12) / 12) * Math.PI * 2;
+        const radius = ring * 95;
+        const candidate = {
+          x: Math.round(origin.x + (Math.cos(angle) * radius)),
+          y: Math.round(origin.y + (Math.sin(angle) * radius))
+        };
+        const bounds = { x: candidate.x - 90, y: candidate.y - 75, width: 180, height: 155 };
+        const insideMap = bounds.x >= 18 && bounds.y >= 18 && bounds.x + bounds.width <= width - 18 && bounds.y + bounds.height <= height - 18;
+        if (insideMap && isBuildableCityPosition(candidate.x, candidate.y, width, height) && !occupied.some((entry) => rectanglesOverlap(bounds, entry))) {
+          position = candidate;
+          occupied.push(bounds);
+          break;
+        }
+      }
+      if (!position) throw new Error(`Não foi possível posicionar a cidade ${city.id} em terreno edificável.`);
+      return { ...city, x: Number(((position.x / width) * 100).toFixed(3)), y: Number(((position.y / height) * 100).toFixed(3)) };
+    });
   }
 
   const SCENERY = Object.freeze([
@@ -136,5 +170,5 @@
     return { width, height, seed, objects: [...terrain, ...scenery] };
   }
 
-  return Object.freeze({ DEFAULT_MAP_SEED, TILE, LAYERS, seededRandom, terrainBiomeAt, rectanglesOverlap, createTerrainObjects, createSceneryObjects, createMapDefinition });
+  return Object.freeze({ DEFAULT_MAP_SEED, TILE, LAYERS, BUILDABLE_TERRAINS, seededRandom, terrainBiomeAt, rectanglesOverlap, isBuildableCityPosition, placeCitiesOnBuildableTerrain, createTerrainObjects, createSceneryObjects, createMapDefinition });
 });

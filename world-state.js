@@ -135,7 +135,8 @@
   function createInitialWorld({ botCount = DEFAULT_BOT_COUNT } = {}) {
     const players = createPlayers(botCount);
     const dimensions = mapDimensions(players.length);
-    const cities = [...createOwnedCities(players, dimensions), ...createNeutralCities(players.length, dimensions)];
+    const requestedCities = [...createOwnedCities(players, dimensions), ...createNeutralCities(players.length, dimensions)];
+    const cities = MapDefinition.placeCitiesOnBuildableTerrain(requestedCities, dimensions.width, dimensions.height);
     const map = MapDefinition.createMapDefinition({ ...dimensions, cities });
     return { players, cities, dimensions, map };
   }

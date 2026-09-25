@@ -1,5 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const { isBuildableCityPosition, rectanglesOverlap } = require('../map-definition.js');
 const {
   DEFAULT_BOT_COUNT,
   MAP_AREA_MULTIPLIER,
@@ -38,6 +39,18 @@ test('distribui vilas neutras conquistáveis ao redor do mapa', () => {
   assert.equal(neutral.length, 14);
   assert.equal(neutral.every(({ isCapital, level }) => !isCapital && level === 1), true);
   assert.equal(neutral.every(({ x, y }) => x < 8 || x > 92 || y < 8 || y > 92), true);
+});
+
+test('posiciona todos os castelos somente em terreno edificável', () => {
+  const world = createInitialWorld();
+  world.cities.forEach((city) => {
+    const x = (city.x / 100) * world.dimensions.width;
+    const y = (city.y / 100) * world.dimensions.height;
+    assert.equal(isBuildableCityPosition(x, y, world.dimensions.width, world.dimensions.height), true, city.id);
+    const castleBounds = { x: x - 90, y: y - 75, width: 180, height: 155 };
+    const scenery = world.map.objects.filter(({ type }) => type !== 'terrain');
+    assert.equal(scenery.some((object) => rectanglesOverlap(castleBounds, object)), false, city.id);
+  });
 });
 
 test('expande o mapa quando novos participantes entram', () => {

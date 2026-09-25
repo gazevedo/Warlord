@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { DEFAULT_MAP_SEED, LAYERS, createMapDefinition, rectanglesOverlap } = require('../map-definition.js');
+const { BUILDABLE_TERRAINS, DEFAULT_MAP_SEED, LAYERS, createMapDefinition, isBuildableCityPosition, placeCitiesOnBuildableTerrain, rectanglesOverlap, terrainBiomeAt } = require('../map-definition.js');
 
 test('a seed fixa produz a mesma definição e outra seed altera a composição', () => {
   const input = { width: 2_460, height: 2_220, cities: [] };
@@ -24,4 +24,19 @@ test('objetos respeitam camadas, profundidade vertical e colisão entre grandes 
       assert.equal(rectanglesOverlap(blocking[index], blocking[comparison], 28), false);
     }
   }
+});
+
+test('reposiciona castelos para áreas sem água e preserva seus dados', () => {
+  const width = 2_460;
+  const height = 2_220;
+  const waterCity = { id: 'river-castle', name: 'Castelo do Rio', x: 54, y: 50, level: 12 };
+  assert.equal(terrainBiomeAt(width * 0.54, height * 0.5, width, height), 'water');
+
+  const [placed] = placeCitiesOnBuildableTerrain([waterCity], width, height);
+  const x = (placed.x / 100) * width;
+  const y = (placed.y / 100) * height;
+  assert.equal(placed.name, waterCity.name);
+  assert.equal(placed.level, waterCity.level);
+  assert.ok(BUILDABLE_TERRAINS.includes(terrainBiomeAt(x, y, width, height)));
+  assert.equal(isBuildableCityPosition(x, y, width, height), true);
 });
